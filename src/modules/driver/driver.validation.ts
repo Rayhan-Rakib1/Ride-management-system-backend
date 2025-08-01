@@ -1,5 +1,4 @@
 import { z } from "zod";
-import mongoose from "mongoose";
 import { DriverApprovalStatus, DriverAvailability } from "./driver.interface";
 
 

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { checkAuth } from "../../middlewares/check.auth";
 import { Role } from "../user/user.interface";
 import { validationRequest } from "../../middlewares/validation.request";
-import { createDriverZodSchema, DriverAvailabilityZodSchema, updateDriverZodSchema } from "./driver.validation";
+import { createDriverZodSchema,  updateDriverZodSchema } from "./driver.validation";
 import { DriverController } from "./driver.controller";
 
 const router = Router();

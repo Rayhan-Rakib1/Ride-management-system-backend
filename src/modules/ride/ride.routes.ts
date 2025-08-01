@@ -2,7 +2,7 @@ import { Router } from "express";
 import { checkAuth } from "../../middlewares/check.auth";
 import { Role } from "../user/user.interface";
 import { validationRequest } from "../../middlewares/validation.request";
-import { createRideZodSchema, updateRideStatusZodSchema, cancelRideZodSchema } from "./ride.validation";
+import { createRideZodSchema, updateRideStatusZodSchema } from "./ride.validation";
 import { RideController } from "./ride.controller";
 
 const router = Router();

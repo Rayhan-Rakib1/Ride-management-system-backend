@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import {  Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { StatusCodes } from "http-status-codes";
@@ -6,7 +6,7 @@ import { RideServices } from "./ride.services";
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../ErrorHandler/AppError";
 
-const createRide = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const createRide = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
   if (!user || !user.userId) {
     throw new AppError(StatusCodes.UNAUTHORIZED, "User not authenticated");
@@ -22,7 +22,7 @@ const createRide = catchAsync(async (req: Request, res: Response, next: NextFunc
   });
 });
 
-const cancelRide = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const cancelRide = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = req.user as JwtPayload;
 
@@ -40,7 +40,7 @@ const cancelRide = catchAsync(async (req: Request, res: Response, next: NextFunc
   });
 });
 
-const updateRideStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
   const user = req.user as JwtPayload;
@@ -59,7 +59,7 @@ const updateRideStatus = catchAsync(async (req: Request, res: Response, next: Ne
   });
 });
 
-const getRideById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getRideById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = req.user as JwtPayload;
 
@@ -77,7 +77,7 @@ const getRideById = catchAsync(async (req: Request, res: Response, next: NextFun
   });
 });
 
-const getRiderRideHistory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getRiderRideHistory = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
 
   if (!user || !user.userId) {
@@ -94,7 +94,7 @@ const getRiderRideHistory = catchAsync(async (req: Request, res: Response, next:
   });
 });
 
-const getAllRides = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getAllRides = catchAsync(async (req: Request, res: Response) => {
   const result = await RideServices.getAllRides();
 
   sendResponse(res, {

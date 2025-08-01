@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../ErrorHandler/AppError";
-import { IRide, RideStatus, TRideStatus } from "./ride.interface";
+import { IRide, RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
 import { User } from "../user/user.model";
 import { Driver } from "../driver/driver.model";

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import {  Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { StatusCodes } from "http-status-codes";
@@ -8,7 +8,7 @@ import AppError from "../../ErrorHandler/AppError";
 import { Driver } from "./driver.model";
 
 const createDriver = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const user = req.user as JwtPayload;
 
     if (!user || !user.userId) {
@@ -27,7 +27,7 @@ const createDriver = catchAsync(
 );
 
 const getAllDrivers = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const result = await DriverServices.getAllDriver();
 
     sendResponse(res, {
@@ -40,7 +40,7 @@ const getAllDrivers = catchAsync(
 );
 
 const getDriverById = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params;
     const user = req.user as JwtPayload;
 
@@ -68,7 +68,7 @@ const getDriverById = catchAsync(
 );
 
 const updateDriverAvailability = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params; // This is userId (or driverId) from URL
     const user = req.user as JwtPayload;
     const { availability } = req.body;
@@ -103,7 +103,7 @@ const updateDriverAvailability = catchAsync(
 
 
 const updateDriverStatus = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params;
     const { approvalStatus } = req.body;
 
@@ -119,7 +119,7 @@ const updateDriverStatus = catchAsync(
 );
 
 const getDriverRideHistory = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params;
     const user = req.user as JwtPayload;
 
@@ -142,7 +142,7 @@ const getDriverRideHistory = catchAsync(
 );
 
 const getDriverEarnings = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params;
     const user = req.user as JwtPayload;
 
@@ -165,7 +165,7 @@ const getDriverEarnings = catchAsync(
 );
 
 const acceptRide = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const { rideId } = req.params;
     const user = req.user as JwtPayload;
 
@@ -181,7 +181,7 @@ const acceptRide = catchAsync(
 );
 
 const updateRideStatus = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const { rideId } = req.params;
     const { status } = req.body;
     const user = req.user as JwtPayload;
