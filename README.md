@@ -304,4 +304,4 @@ Please ensure your code follows the existing style and includes tests.
 📜 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-Developed with 🚀 by [Your Name]For questions or feedback, reach out at [your-email@example.com].
+Developed with 🚀 by [Your Name]For questions or feedback, reach out at [your-email@example.com].gi
