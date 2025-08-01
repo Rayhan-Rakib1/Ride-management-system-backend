@@ -56,7 +56,7 @@ router.get(
 
 // Get driver's earnings history (driver only)
 router.get(
-  '/:id/earnings',
+  '/earnings/:id',
   checkAuth(Role.Driver),
   DriverController.getDriverEarnings
 );
