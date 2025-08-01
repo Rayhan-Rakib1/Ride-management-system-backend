@@ -162,7 +162,7 @@ const acceptRide = async (rideId: string, driverId: string) => {
 
   const result = await Ride.findByIdAndUpdate(
     rideId,
-    { driverId, status: "accepted", updatedAt: new Date() },
+    { driverId: driverId, status: "accepted", updatedAt: new Date() },
     { new: true, runValidators: true }
   ).populate("riderId", "name email");
 
