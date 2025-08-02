@@ -51,20 +51,23 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientSecret: env_1.envVers.GOOGLE_CLIENT_SECRET,
     callbackURL: env_1.envVers.GOOGLE_CALLBACK_URL,
 }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c, _d;
     try {
-        const email = (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0].value;
+        const email = (_b = (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.value;
         if (!email) {
-            return done(null, false, { massage: "Email not found" });
+            return done(null, false, { message: "Email not found" });
         }
-        let user = yield user_model_1.User.findOne({ email });
+        const user = yield user_model_1.User.findOne({ email });
+        // 🔍 If no user with the email exists
         if (!user) {
-            user = yield user_model_1.User.create({
+            // ✅ Check if this is the very first user in the DB
+            const totalUsers = yield user_model_1.User.countDocuments();
+            const newUser = yield user_model_1.User.create({
                 email,
                 name: profile.displayName,
-                picture: (_b = profile.photos) === null || _b === void 0 ? void 0 : _b[0].value,
+                picture: (_d = (_c = profile.photos) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.value,
                 isVerified: true,
-                role: user_interface_1.Role.SuperAdmin,
+                role: totalUsers === 0 ? user_interface_1.Role.SuperAdmin : user_interface_1.Role.Rider, // ✅ Conditionally assign role
                 auths: [
                     {
                         provider: "google",
@@ -72,11 +75,12 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
                     },
                 ],
             });
+            return done(null, newUser);
         }
+        // ✅ If user already exists, return that
         return done(null, user);
     }
     catch (error) {
-        console.log("Google strategy error", error);
         return done(error);
     }
 })));

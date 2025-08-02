@@ -66,19 +66,24 @@ passport.use(
       done: VerifyCallback
     ) => {
       try {
-        const email = profile.emails?.[0].value;
+        const email = profile.emails?.[0]?.value;
         if (!email) {
-          return done(null, false, { massage: "Email not found" });
+          return done(null, false, { message: "Email not found" });
         }
 
-        let user = await User.findOne({ email });
+        const user = await User.findOne({ email });
+
+        // 🔍 If no user with the email exists
         if (!user) {
-          user = await User.create({
+          // ✅ Check if this is the very first user in the DB
+          const totalUsers = await User.countDocuments();
+
+          const newUser = await User.create({
             email,
             name: profile.displayName,
-            picture: profile.photos?.[0].value,
+            picture: profile.photos?.[0]?.value,
             isVerified: true,
-            role: Role.SuperAdmin,
+            role: totalUsers === 0 ? Role.SuperAdmin : Role.Rider, // ✅ Conditionally assign role
             auths: [
               {
                 provider: "google",
@@ -86,16 +91,19 @@ passport.use(
               },
             ],
           });
+
+          return done(null, newUser);
         }
 
+        // ✅ If user already exists, return that
         return done(null, user);
       } catch (error) {
-        console.log("Google strategy error", error);
         return done(error as Error);
       }
     }
   )
 );
+
 
 passport.serializeUser((user: any, done: (err: any, id?: unknown) => void) => {
   done(null, user._id);
