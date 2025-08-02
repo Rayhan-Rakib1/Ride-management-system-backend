@@ -27,7 +27,7 @@ const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0
         const verifiedToken = (0, jwt_1.verifyToken)(accessToken, env_1.envVers.JWT_ACCESS_SECRET);
         const isUserExist = yield user_model_1.User.findOne({ email: verifiedToken.email });
         if (!isUserExist) {
-            throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User dose not exist");
+            throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "You are not authorized");
         }
         if (!authRoles.includes(verifiedToken.role)) {
             throw new AppError_1.default(403, "You are not authorized");

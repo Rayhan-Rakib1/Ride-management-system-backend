@@ -10,7 +10,7 @@ const handleDuplicateError_1 = require("../helper/handleDuplicateError");
 const handleCastError_1 = require("../helper/handleCastError");
 const handleZodError_1 = require("../helper/handleZodError");
 const handleValidationError_1 = require("../helper/handleValidationError");
-const globalErrorHandler = (err, req, res) => {
+const globalErrorHandler = (err, req, res, next) => {
     if (env_1.envVers.NODE_ENV === "development") {
         console.log(err);
     }

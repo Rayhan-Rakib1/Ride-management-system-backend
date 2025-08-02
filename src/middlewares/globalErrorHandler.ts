@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {  Request, Response } from "express";
+import {  NextFunction, Request, Response } from "express";
 import { envVers } from "../config/env";
 import { TErrorSources } from "../interfaces/error.types";
 import AppError from "../ErrorHandler/AppError";
@@ -9,7 +10,7 @@ import { handlerZodError } from "../helper/handleZodError";
 import { handleValidationError } from "../helper/handleValidationError";
 
 
-export const globalErrorHandler = (err: any, req: Request, res: Response) => {
+export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   
   if (envVers.NODE_ENV === "development") {
     console.log(err);

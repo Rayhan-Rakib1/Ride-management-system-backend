@@ -59,6 +59,8 @@ A secure, scalable, and role-based backend API for a ride booking system similar
 
 ## 🚀 API Endpoints
 
+Live Link: https://assainment-5-server.vercel.app
+
 ### 🧑‍💼 **Authentication Routes**
 
 | Method | Endpoint                    | Description                  | Access        |

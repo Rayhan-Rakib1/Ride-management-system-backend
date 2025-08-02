@@ -13,7 +13,7 @@ const authSchema = new mongoose_1.Schema({
 const userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
+    password: { type: String },
     role: { type: String, enum: Object.values(user_interface_1.Role), default: user_interface_1.Role.Rider },
     status: {
         type: String,

@@ -21,7 +21,7 @@ export const checkAuth =(...authRoles: string[]) => async (req: Request, res: Re
       const isUserExist = await User.findOne({ email: verifiedToken.email });
 
       if (!isUserExist) {
-        throw new AppError(StatusCodes.BAD_REQUEST, "User dose not exist");
+        throw new AppError(StatusCodes.BAD_REQUEST, "You are not authorized");
       }
    
 

@@ -5,7 +5,7 @@ dotenv.config();
 interface EnvConfig {
   PORT: string;
   DB_URL: string;
-  NODE_ENV: string;
+  NODE_ENV: "development" | "production";
   SUPER_ADMIN_EMAIL: string;
   SUPER_ADMIN_PASSWORD: string;
   JWT_ACCESS_SECRET: string;
