@@ -1,110 +1,119 @@
 import { z } from "zod";
 import { DriverApprovalStatus, DriverAvailability } from "./driver.interface";
 
+// Common fields
+const baseDriverSchema = {
+  name: z.string({ required_error: "Name is required" }).min(1).trim(),
+  email: z.string({ required_error: "Email is required" }).email(),
+  password: z.string({ required_error: "Password is required" }).min(6),
+  role: z.string({ required_error: "Role is required" }),
 
+  phone: z.string({ required_error: "Phone is required" }).min(5).trim(),
+  address: z.string({ required_error: "Address is required" }).min(3).trim(),
+  profileImage: z.string().url().optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
+  dateOfBirth: z.string().datetime().optional(),
+  nationality: z.string().optional(),
+};
 
-// Schema for creating a driver (used in POST /drivers/create-driver)
+// Create Driver Schema
 export const createDriverZodSchema = z.object({
+  ...baseDriverSchema,
+
   vehicleInfo: z.object({
     vehicleType: z.enum(["car", "bike", "van"]),
-    number: z.string(),
-    color: z.string(),
+    number: z.string().min(1, "License plate number is required"),
+    color: z.string().min(1, "Vehicle color is required"),
     model: z.string().optional(),
-    year: z.number().min(1900).max(new Date().getFullYear() + 1).optional(),
+    year: z
+      .number()
+      .min(1900, "Vehicle year must be after 1900")
+      .max(new Date().getFullYear() + 1, "Vehicle year cannot be in the future")
+      .optional(),
   }),
 
   license: z.object({
-    number: z.string(),
-    expiryDate: z.string().refine((val) => {
-      const date = new Date(val);
-      return !isNaN(date.getTime()) && date > new Date();
-    }, { message: "License expiry date must be a valid date in the future" }),
+    number: z.string().min(1, "License number is required"),
+    expiryDate: z.string().refine(
+      (val) => {
+        const date = new Date(val);
+        return !isNaN(date.getTime()) && date > new Date();
+      },
+      { message: "License expiry date must be a valid date in the future" }
+    ),
   }),
 
-  currentLocation: z.object({
-    type: z.literal("Point"),
-    coordinates: z.array(z.number()).length(2).refine(
-      ([lng, lat]) => lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90,
-      { message: "Invalid coordinates" }
-    ),
-  }).optional(),
+  currentLocation: z
+    .object({
+      type: z.literal("Point"),
+      coordinates: z
+        .array(z.number())
+        .length(2)
+        .refine(
+          ([lng, lat]) =>
+            lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90,
+          { message: "Invalid coordinates" }
+        ),
+    })
+    .optional(),
 });
 
-
-
-// Schema for updating driver details (used in PATCH /drivers/:id)
+// Update Driver Schema
 export const updateDriverZodSchema = z.object({
+  name: z.string().trim().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  profileImage: z.string().url().optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
+  dateOfBirth: z.string().datetime().optional(),
+  nationality: z.string().optional(),
 
-      approvalStatus: z
-        .nativeEnum(DriverApprovalStatus, {
-          invalid_type_error: `Approval status must be one of: ${Object.values(DriverApprovalStatus).join(", ")}`,
-        })
+  approvalStatus: z
+    .nativeEnum(DriverApprovalStatus)
+    .optional(),
+  availability: z
+    .nativeEnum(DriverAvailability)
+    .optional(),
+
+  vehicleInfo: z
+    .object({
+      vehicleType: z.enum(["car", "bike", "van"]).optional(),
+      number: z.string().optional(),
+      color: z.string().optional(),
+      model: z.string().optional(),
+      year: z
+        .number()
+        .min(1900, "Vehicle year must be after 1900")
+        .max(new Date().getFullYear() + 1, "Vehicle year cannot be in the future")
         .optional(),
-      availability: z
-        .nativeEnum(DriverAvailability, {
-          invalid_type_error: `Availability must be one of: ${Object.values(DriverAvailability).join(", ")}`,
-        })
+    })
+    .optional(),
+
+  license: z
+    .object({
+      number: z.string().optional(),
+      expiryDate: z
+        .string()
+        .refine(
+          (val) => {
+            const date = new Date(val);
+            return !isNaN(date.getTime()) && date > new Date();
+          },
+          { message: "License expiry date must be valid & in the future" }
+        )
         .optional(),
-      vehicleInfo: z
-        .object({
-          vehicleType: z.enum(["car", "bike", "van"], {
-            invalid_type_error: "Vehicle type must be one of: car, bike, van",
-          }).optional(),
-          number: z
-            .string({ invalid_type_error: "License plate number must be a string" })
-            .min(1, "License plate number cannot be empty")
-            .trim()
-            .optional(),
-          color: z
-            .string({ invalid_type_error: "Vehicle color must be a string" })
-            .min(1, "Vehicle color cannot be empty")
-            .trim()
-            .optional(),
-          model: z
-            .string({ invalid_type_error: "Vehicle model must be a string" })
-            .trim()
-            .optional(),
-          year: z
-            .number({ invalid_type_error: "Vehicle year must be a number" })
-            .min(1900, "Vehicle year must be after 1900")
-            .max(new Date().getFullYear() + 1, "Vehicle year cannot be in the future")
-            .optional(),
-        })
-        .optional(),
-    
-      license: z
-        .object({
-          number: z
-            .string({ invalid_type_error: "License number must be a string" })
-            .min(1, "License number cannot be empty")
-            .trim()
-            .optional(),
-          expiryDate: z
-            .string({ invalid_type_error: "License expiry date must be a string" })
-            .refine(
-              (val) => {
-                const date = new Date(val);
-                return !isNaN(date.getTime()) && date > new Date();
-              },
-              { message: "License expiry date must be a valid date in the future" }
-            )
-            .optional(),
-        })
-        .optional(),
-       
-      rating: z
-        .number({ invalid_type_error: "Rating must be a number" })
-        .min(1, "Rating must be between 1 and 5")
-        .max(5, "Rating must be between 1 and 5")
-        .optional(),
-  
+    })
+    .optional(),
+
+  rating: z.number().min(1).max(5).optional(),
+  totalRides: z.number().min(0).optional(),
+  totalEarnings: z.number().min(0).optional(),
 });
 
-// Schema for updating driver availability (used in PATCH /drivers/:id/availability)
+// Update Driver Availability
 export const DriverAvailabilityZodSchema = z.object({
-
-      availability: z.enum([DriverAvailability.Online, DriverAvailability.Offline], {
-        required_error: "Availability is required",
-        invalid_type_error: `Availability must be one of: ${Object.values(DriverAvailability).join(", ")}`,
-      }),
-    });
+  availability: z.nativeEnum(DriverAvailability, {
+    required_error: "Availability is required",
+  }),
+});

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {  NextFunction, Request, Response } from "express";
-import { envVers } from "../config/env";
+import { NextFunction, Request, Response } from "express";
+import { envVars } from "../config/env";
 import { TErrorSources } from "../interfaces/error.types";
 import AppError from "../ErrorHandler/AppError";
 import { handlerDuplicateError } from "../helper/handleDuplicateError";
@@ -9,10 +9,13 @@ import { handleCastError } from "../helper/handleCastError";
 import { handlerZodError } from "../helper/handleZodError";
 import { handleValidationError } from "../helper/handleValidationError";
 
-
-export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  
-  if (envVers.NODE_ENV === "development") {
+export const globalErrorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (envVars.NODE_ENV === "development") {
     console.log(err);
   }
   let statusCode = 500;
@@ -49,7 +52,7 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
     success: false,
     message,
     errorSources,
-    err: envVers.NODE_ENV === 'development' ? err : null,
-    stack: envVers.NODE_ENV === "development" ? err.stack : null,
+    err: envVars.NODE_ENV === "development" ? err : null,
+    stack: envVars.NODE_ENV === "development" ? err.stack : null,
   });
 };

@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 
 export enum DriverApprovalStatus {
   Pending = "pending",
@@ -12,8 +11,17 @@ export enum DriverAvailability {
   Offline = "offline",
 }
 
+export interface IAuthProvider {
+  provider: "google" | "credential";
+  providerId: string;
+}
+
 export interface IDriver {
-  userId: Types.ObjectId;
+  name: string;
+  email: string;
+  password: string,
+  isVerified?: boolean;
+  auth: IAuthProvider[];
   role: string;
   approvalStatus: DriverApprovalStatus;
   availability: DriverAvailability;
@@ -32,6 +40,12 @@ export interface IDriver {
     type: "Point";
     coordinates: [number, number];
   };
+  address: string;
+  phone: string;
+  profileImage?: string;
+  gender?: "male" | "female" | "other";
+  dateOfBirth?: Date;
+  nationality?: string;
   rating?: number;
   totalRides: number;
   totalEarnings: number;

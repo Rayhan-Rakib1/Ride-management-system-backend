@@ -5,10 +5,12 @@ import bcrypt from "bcryptjs";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import AppError from "../../ErrorHandler/AppError";
-import { createToken, getNewAccessTokenUsingRefreshToken } from "../../utils/userToken";
+import {
+  createToken,
+  getNewAccessTokenUsingRefreshToken,
+} from "../../utils/userToken";
 import { JwtPayload } from "jsonwebtoken";
-import { envVers } from "../../config/env";
-
+import { envVars } from "../../config/env";
 
 const credentialLogin = async (payload: Partial<IUser>) => {
   const { email, password } = payload;
@@ -47,22 +49,31 @@ const getNewAccessToken = async (refreshToken: string) => {
   };
 };
 
-
 // -----------------------------------------
-const resetPassword = async (oldPassword: string, newPassword: string,  decodedToken: JwtPayload) => {
-const user = await User.findById(decodedToken.userId);
+const resetPassword = async (
+  oldPassword: string,
+  newPassword: string,
+  decodedToken: JwtPayload
+) => {
+  const user = await User.findById(decodedToken.userId);
 
-const isOldPassword = await bcrypt.compare(oldPassword , user!.password as string);
-if(!isOldPassword){
-  throw new AppError(StatusCodes.BAD_REQUEST, "Enter your old password")
-}
+  const isOldPassword = await bcrypt.compare(
+    oldPassword,
+    user!.password as string
+  );
+  if (!isOldPassword) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "Enter your old password");
+  }
 
-user!.password  = await bcrypt.hash(newPassword, Number(envVers.BCRYPT_SALT_ROUND));
-user!.save();
-}
+  user!.password = await bcrypt.hash(
+    newPassword,
+    Number(envVars.BCRYPT_SALT_ROUND)
+  );
+  user!.save();
+};
 
 export const authService = {
   credentialLogin,
   getNewAccessToken,
-  resetPassword
+  resetPassword,
 };

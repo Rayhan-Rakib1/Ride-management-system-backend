@@ -1,43 +1,63 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../ErrorHandler/AppError";
-import { DriverApprovalStatus, IDriver } from "./driver.interface";
+import {
+  DriverApprovalStatus,
+  IAuthProvider,
+  IDriver,
+} from "./driver.interface";
 import { Driver } from "./driver.model";
 import { User } from "../user/user.model";
 import { Ride } from "../ride/ride.model";
 import { TRideStatus } from "../ride/ride.interface";
+import bcrypt from "bcryptjs";
+import { envVars } from "../../config/env";
+import { Role } from "../user/user.interface";
 
-const createDriver = async (payload: Partial<IDriver>, userId: string) => {
-  const isDriverExist = await Driver.findOne({ userId });
+const createDriver = async (payload: Partial<IDriver>) => {
+  const {name, email, password, profileImage, ...rest } = payload;
+  const isDriverExist = await Driver.findOne({ email });
+  const isUserExist = await User.findOne({ email });
+
+  if(isUserExist){
+    throw new AppError(StatusCodes.BAD_REQUEST, 'You are already driver')
+  }
+
   if (isDriverExist) {
-    throw new AppError(StatusCodes.BAD_REQUEST, "Driver already exists");
+    throw new AppError(StatusCodes.BAD_REQUEST, "Driver already exist");
+  }
+  if (!envVars.BCRYPT_SALT_ROUND) {
+    throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, "Salt round not configured");
   }
 
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
-  }
-
-  await User.findByIdAndUpdate(
-    userId,
-    { role: "Driver" },
-    { new: true, runValidators: true }
+  const hashPassword = await bcrypt.hash(
+    password as string,
+    Number(envVars.BCRYPT_SALT_ROUND) | 10
   );
 
-  const driverData = {
-    userId,
-    role: "Driver" as const,
-    vehicleInfo: payload.vehicleInfo,
-    license: payload.license,
-    approvalStatus: "pending" as const,
-    isAvailable: false,
-    totalRides: 0,
-    totalEarnings: 0,
-
+  const authProvider: IAuthProvider = {
+    provider: "credential",
+    providerId: email as string,
   };
 
-  const driver = await Driver.create(driverData);
-  return driver;
+  const driver = await Driver.create({
+    name: name,
+    email: email,
+    password: hashPassword,
+    auth: [authProvider],
+    role: Role.Driver,
+    ...rest
+  });
+
+  const user = await User.create({
+    name: name,
+    email: email,
+    password: hashPassword,
+    auth: [authProvider],
+    profileImage: profileImage,
+    role: Role.Driver,
+  })
+  return {driver, user};
 };
 
 const getAllDriver = async () => {
@@ -56,7 +76,10 @@ const getDriverById = async (id: string) => {
   return driver;
 };
 
-const updateDriverAvailability = async (userId: string, availability: "online" | "offline") => {
+const updateDriverAvailability = async (
+  userId: string,
+  availability: "online" | "offline"
+) => {
   // First find by userId (since your schema uses userId to reference the user)
   const driver = await Driver.findOne({ userId });
 
@@ -77,7 +100,6 @@ const updateDriverAvailability = async (userId: string, availability: "online" |
 
   return result;
 };
-
 
 const updateDriverStatus = async (
   id: string,
@@ -193,21 +215,21 @@ const updateRideStatus = async (
       "Driver is not assigned to this ride"
     );
   }
-const validStatusTransitions: Record<string, string[]> = {
-  requested: ["accepted"],
-  accepted: ["picked_up"],
-  picked_up: ["in_transit"],
-  in_transit: ["completed"],
-  completed: [],
-  cancelled: [],
-};
+  const validStatusTransitions: Record<string, string[]> = {
+    requested: ["accepted"],
+    accepted: ["picked_up"],
+    picked_up: ["in_transit"],
+    in_transit: ["completed"],
+    completed: [],
+    cancelled: [],
+  };
 
-if (!validStatusTransitions[ride.status].includes(status)) {
-  throw new AppError(
-    StatusCodes.BAD_REQUEST,
-    `Invalid status transition from ${ride.status} to ${status}`
-  );
-}
+  if (!validStatusTransitions[ride.status].includes(status)) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      `Invalid status transition from ${ride.status} to ${status}`
+    );
+  }
   const updates: any = { status, updatedAt: new Date() };
   if (status === "Completed") {
     updates.fare = ride.fare || 0; // Ensure fare is recorded

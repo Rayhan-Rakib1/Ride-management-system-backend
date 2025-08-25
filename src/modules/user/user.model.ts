@@ -16,8 +16,10 @@ const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
-    password: { type: String},
+    password: { type: String, required: true},
+    profileImage: {type: String, required: true },
     role: { type: String, enum: Object.values(Role), default: Role.Rider },
+    isVerified: {type: Boolean },
     status: {
       type: String,
       enum: Object.values(User_Status),

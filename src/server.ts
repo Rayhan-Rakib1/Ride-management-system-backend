@@ -1,16 +1,17 @@
 import { Server } from "http";
 import mongoose from "mongoose";
 import { app } from "./app";
-import { envVers } from "./config/env";
+import { envVars } from "./config/env";
 import { superAdmin } from "./utils/super.admin";
+import { connectRedis } from "./config/redisClient";
 
 let server: Server;
 
 async function startServer() {
   try {
-    await mongoose.connect(envVers.DB_URL);
-    server = app.listen(envVers.PORT, () => {
-      console.log(`server is running on port ${envVers.PORT}`);
+    await mongoose.connect(envVars.DB_URL);
+    server = app.listen(envVars.PORT, () => {
+      console.log(`server is running on port ${envVars.PORT}`);
     });
   } catch (error) {
     console.log(error);
@@ -18,6 +19,7 @@ async function startServer() {
 }
 
 (async () => {
+  await connectRedis();
   await startServer();
   await superAdmin();
 })();

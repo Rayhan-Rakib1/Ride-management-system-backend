@@ -5,12 +5,12 @@ const rideSchema = new Schema<IRide>(
   {
     riderId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Rider",
       required: [true, "Rider ID is required"],
     },
     driverId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Driver",
     },
     pickup: {
       lat: {

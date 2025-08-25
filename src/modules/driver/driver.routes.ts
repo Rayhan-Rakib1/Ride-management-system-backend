@@ -10,7 +10,6 @@ const router = Router();
 // Create a new driver (admin only)
 router.post(
   '/create-driver',
-  checkAuth(Role.Admin, Role.SuperAdmin, Role.Rider, Role.Driver),
   validationRequest(createDriverZodSchema),
   DriverController.createDriver
 );

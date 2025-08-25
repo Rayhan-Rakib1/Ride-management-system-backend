@@ -12,9 +12,10 @@ import AppError from "../../ErrorHandler/AppError";
 import { createToken } from "../../utils/userToken";
 import { JwtPayload } from "jsonwebtoken";
 import { IUser } from "../user/user.interface";
-import { envVers } from "../../config/env";
+import { envVars } from "../../config/env";
 
-const credentialLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const credentialLogin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate("local", async (err: any, user: any, info: any) => {
       if (err) {
         return next(new AppError(401, err));
@@ -119,7 +120,7 @@ const googleCallback = catchAsync(
     const tokenInfo = createToken(user);
     setAuthCookie(res, tokenInfo);
 
-    res.redirect(`${envVers.FRONTEND_URL}/${redirectTo}`);
+    res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`);
   }
 );
 

@@ -9,7 +9,7 @@ import {
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
 import { User } from "../modules/user/user.model";
-import { envVers } from "./env";
+import { envVars } from "./env";
 import { Role } from "../modules/user/user.interface";
 
 passport.use(
@@ -55,9 +55,9 @@ passport.use(
 passport.use(
   new GoogleStrategy(
     {
-      clientID: envVers.GOOGLE_CLIENT_ID,
-      clientSecret: envVers.GOOGLE_CLIENT_SECRET,
-      callbackURL: envVers.GOOGLE_CALLBACK_URL,
+      clientID: envVars.GOOGLE_CLIENT_ID,
+      clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+      callbackURL: envVars.GOOGLE_CALLBACK_URL,
     },
     async (
       accessToken: string,
@@ -103,7 +103,6 @@ passport.use(
     }
   )
 );
-
 
 passport.serializeUser((user: any, done: (err: any, id?: unknown) => void) => {
   done(null, user._id);

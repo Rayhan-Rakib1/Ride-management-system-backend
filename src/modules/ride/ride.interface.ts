@@ -9,7 +9,7 @@ export enum RideStatus {
   Cancelled = "cancelled",
 }
 
-export type TRideStatus = keyof typeof RideStatus;
+export type TRideStatus = RideStatus; 
 
 export interface IRide {
   riderId: Types.ObjectId;

@@ -4,7 +4,7 @@ import AppError from "../../ErrorHandler/AppError";
 import { IAuthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
 import bcrypt from "bcryptjs";
-import { envVers } from "../../config/env";
+import { envVars } from "../../config/env";
 
 const createUser = async (payload: Partial<IUser>) => {
   const { email, password, ...rest } = payload;
@@ -16,7 +16,7 @@ const createUser = async (payload: Partial<IUser>) => {
 
   const hashPassword = await bcrypt.hash(
     password as string,
-    Number(envVers.BCRYPT_SALT_ROUND)
+    Number(envVars.BCRYPT_SALT_ROUND)
   );
 
   const authProvider: IAuthProvider = {
@@ -47,7 +47,7 @@ const updateUser = async (userId: string, payload: Partial<IUser>) => {
   if (payload.password) {
     payload.password = await bcrypt.hash(
       payload.password,
-      Number(envVers.BCRYPT_SALT_ROUND)
+      Number(envVars.BCRYPT_SALT_ROUND)
     );
   }
 
@@ -58,29 +58,38 @@ const updateUser = async (userId: string, payload: Partial<IUser>) => {
   return updatedUser;
 };
 
-
-export const updateUserStatus = async (userId: string, status: string, requestingUser: any) => {
+export const updateUserStatus = async (
+  userId: string,
+  status: string,
+  requestingUser: any
+) => {
   if (![Role.Admin, Role.SuperAdmin].includes(requestingUser.role)) {
-    throw new AppError(StatusCodes.BAD_REQUEST,'Only admins can update user status');
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "Only admins can update user status"
+    );
   }
 
   const user = await User.findById(userId);
   if (!user) {
-    throw new AppError(StatusCodes.BAD_REQUEST,'User not found');
+    throw new AppError(StatusCodes.BAD_REQUEST, "User not found");
   }
 
   if (user.role === Role.SuperAdmin) {
-    throw new AppError(StatusCodes.BAD_REQUEST,'Cannot modify super admin status');
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "Cannot modify super admin status"
+    );
   }
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { status: status },
     { new: true, runValidators: true }
-  ).select('-password');
+  ).select("-password");
 
   if (!updatedUser) {
-    throw new AppError(StatusCodes.BAD_REQUEST,'User not found');
+    throw new AppError(StatusCodes.BAD_REQUEST, "User not found");
   }
 
   return updatedUser;
@@ -90,5 +99,5 @@ export const UserServices = {
   createUser,
   getAllUsers,
   updateUser,
-  updateUserStatus
+  updateUserStatus,
 };

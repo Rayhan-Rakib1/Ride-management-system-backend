@@ -9,13 +9,9 @@ import { Driver } from "./driver.model";
 
 const createDriver = catchAsync(
   async (req: Request, res: Response) => {
-    const user = req.user as JwtPayload;
+   const payload = req.body;
 
-    if (!user || !user.userId) {
-      throw new AppError(StatusCodes.UNAUTHORIZED, "User not authenticated");
-    }
-
-    const result = await DriverServices.createDriver(req.body, user.userId);
+    const result = await DriverServices.createDriver(payload);
 
     sendResponse(res, {
       message: "Driver created successfully",
@@ -45,7 +41,7 @@ const getDriverById = catchAsync(
     const user = req.user as JwtPayload;
 
     const driver = await Driver.findById(id);
-    if (user.userId !== driver?.userId.toString()) {
+    if (user.email !== driver?.email.toString()) {
       throw new AppError(
         StatusCodes.FORBIDDEN,
         "Drivers can only access their own profile"
@@ -80,7 +76,7 @@ const updateDriverAvailability = catchAsync(
       throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
     }
 
-    if (user.userId !== driver.userId.toString()) {
+    if (user.email !== driver.email.toString()) {
       throw new AppError(
         StatusCodes.FORBIDDEN,
         "Drivers can only update their own availability"

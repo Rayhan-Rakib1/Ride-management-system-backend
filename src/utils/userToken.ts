@@ -3,7 +3,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
 import { IUser } from "../modules/user/user.interface";
 import { generateToken, verifyToken } from "./jwt";
-import { envVers } from "../config/env";
+import { envVars } from "../config/env";
 import { User } from "../modules/user/user.model";
 import AppError from "../ErrorHandler/AppError";
 
@@ -20,22 +20,26 @@ export const createToken = (user: Partial<IUser>) => {
 
   const accessToken = generateToken(
     jwtPayload,
-    envVers.JWT_ACCESS_SECRET,
-    envVers.JWT_ACCESS_EXPIRES
+    envVars.JWT_ACCESS_SECRET,
+    envVars.JWT_ACCESS_EXPIRES
   );
 
   const refreshToken = generateToken(
     jwtPayload,
-    envVers.JWT_REFRESH_SECRET,
-    envVers.JWT_REFRESH_EXPIRES
+    envVars.JWT_REFRESH_SECRET,
+    envVars.JWT_REFRESH_EXPIRES
   );
 
   return { accessToken, refreshToken };
 };
 
-
-export const getNewAccessTokenUsingRefreshToken = async (refreshToken: string) => {
-  const verifiedRefreshToken = verifyToken(refreshToken, envVers.JWT_REFRESH_SECRET) as JwtPayload;
+export const getNewAccessTokenUsingRefreshToken = async (
+  refreshToken: string
+) => {
+  const verifiedRefreshToken = verifyToken(
+    refreshToken,
+    envVars.JWT_REFRESH_SECRET
+  ) as JwtPayload;
 
   const isUserExist = await User.findOne({ email: verifiedRefreshToken.email });
 
@@ -51,8 +55,8 @@ export const getNewAccessTokenUsingRefreshToken = async (refreshToken: string) =
 
   const accessToken = generateToken(
     jwtPayload,
-    envVers.JWT_ACCESS_SECRET,
-    envVers.JWT_ACCESS_EXPIRES
+    envVars.JWT_ACCESS_SECRET,
+    envVars.JWT_ACCESS_EXPIRES
   );
 
   return accessToken;
