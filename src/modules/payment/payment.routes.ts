@@ -5,7 +5,7 @@ import { PaymentController } from "./payment.controller";
 const router = express.Router();
 
 
-router.post('/init-payment/:rideID',   PaymentController.initPayment)
+router.post('/init-payment/:rideId',   PaymentController.initPayment)
 router.post('/success', PaymentController.successPayment)
 router.post('/fail', PaymentController.failPayment)
 router.post('/cancel', PaymentController.cancelPayment)

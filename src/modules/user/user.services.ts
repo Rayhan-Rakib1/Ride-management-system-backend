@@ -1,62 +1,62 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../ErrorHandler/AppError";
-import { IAuthProvider, IUser, Role } from "./user.interface";
+import { Role } from "./user.interface";
 import { User } from "./user.model";
-import bcrypt from "bcryptjs";
-import { envVars } from "../../config/env";
+// import bcrypt from "bcryptjs";
+// import { envVars } from "../../config/env";
 
-const createUser = async (payload: Partial<IUser>) => {
-  const { email, password, ...rest } = payload;
+// const createUser = async (payload: Partial<IUser>) => {
+//   const { email, password, ...rest } = payload;
 
-  const isUserExist = await User.findOne({ email });
-  if (isUserExist) {
-    throw new AppError(StatusCodes.BAD_REQUEST, "User already exists");
-  }
+//   const isUserExist = await User.findOne({ email });
+//   if (isUserExist) {
+//     throw new AppError(StatusCodes.BAD_REQUEST, "User already exists");
+//   }
 
-  const hashPassword = await bcrypt.hash(
-    password as string,
-    Number(envVars.BCRYPT_SALT_ROUND)
-  );
+//   const hashPassword = await bcrypt.hash(
+//     password as string,
+//     Number(envVars.BCRYPT_SALT_ROUND)
+//   );
 
-  const authProvider: IAuthProvider = {
-    provider: "credential",
-    providerId: email as string,
-  };
+//   const authProvider: IAuthProvider = {
+//     provider: "credential",
+//     providerId: email as string,
+//   };
 
-  const user = await User.create({
-    email: email,
-    password: hashPassword,
-    auth: [authProvider],
-    ...rest,
-  });
-  return user;
-};
+//   const user = await User.create({
+//     email: email,
+//     password: hashPassword,
+//     auth: [authProvider],
+//     ...rest,
+//   });
+//   return user;
+// };
 
 const getAllUsers = async () => {
   const result = await User.find();
   return result;
 };
 
-const updateUser = async (userId: string, payload: Partial<IUser>) => {
-  const isUserExist = await User.findById(userId);
-  if (!isUserExist) {
-    throw new AppError(StatusCodes.BAD_REQUEST, "User does not exists");
-  }
+// const updateUser = async (userId: string, payload: Partial<IUser>) => {
+//   const isUserExist = await User.findById(userId);
+//   if (!isUserExist) {
+//     throw new AppError(StatusCodes.BAD_REQUEST, "User does not exists");
+//   }
 
-  if (payload.password) {
-    payload.password = await bcrypt.hash(
-      payload.password,
-      Number(envVars.BCRYPT_SALT_ROUND)
-    );
-  }
+//   if (payload.password) {
+//     payload.password = await bcrypt.hash(
+//       payload.password,
+//       Number(envVars.BCRYPT_SALT_ROUND)
+//     );
+//   }
 
-  const updatedUser = await User.findByIdAndUpdate(userId, payload, {
-    runValidators: true,
-    new: true,
-  });
-  return updatedUser;
-};
+//   const updatedUser = await User.findByIdAndUpdate(userId, payload, {
+//     runValidators: true,
+//     new: true,
+//   });
+//   return updatedUser;
+// };
 
 export const updateUserStatus = async (
   userId: string,
@@ -95,9 +95,19 @@ export const updateUserStatus = async (
   return updatedUser;
 };
 
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  if (!user) {
+    throw new AppError(401, "User does not exist");
+  }
+
+  return user;
+};
+
 export const UserServices = {
-  createUser,
+  // createUser,
   getAllUsers,
-  updateUser,
+  // updateUser,
   updateUserStatus,
+  getMe,
 };

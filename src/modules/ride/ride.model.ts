@@ -12,6 +12,10 @@ const rideSchema = new Schema<IRide>(
       type: Schema.Types.ObjectId,
       ref: "Driver",
     },
+    payment: {
+      type: Schema.Types.ObjectId,
+      ref: "Payment",
+    },
     pickup: {
       lat: {
         type: Number,
@@ -48,23 +52,7 @@ const rideSchema = new Schema<IRide>(
       },
       default: RideStatus.Requested,
     },
-    history: [
-      {
-        status: {
-          type: String,
-          enum: {
-            values: Object.values(RideStatus),
-            message: "{VALUE} is not a valid history status",
-          },
-          required: [true, "History status is required"],
-        },
-        timestamp: {
-          type: Date,
-          required: [true, "History timestamp is required"],
-          default: Date.now,
-        },
-      },
-    ],
+
     fare: {
       type: Number,
       min: [0, "Fare cannot be negative"],

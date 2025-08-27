@@ -35,6 +35,12 @@ passport.use(
           });
         }
 
+        if (!isUserExist.password) {
+          return done(null, false, {
+            message: "No password set. Please login with Google first.",
+          });
+        }
+
         const passwordMatched = await bcrypt.compare(
           password,
           isUserExist.password as string
@@ -42,6 +48,10 @@ passport.use(
 
         if (!passwordMatched) {
           return done(null, false, { message: "Password does not match" });
+        }
+
+        if (!isUserExist.isVerified) {
+          return done(null, false, { message: "User is not verified" });
         }
 
         return done(null, isUserExist); // success

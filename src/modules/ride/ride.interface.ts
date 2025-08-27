@@ -7,6 +7,8 @@ export enum RideStatus {
   InTransit = "in_transit",
   Completed = "completed",
   Cancelled = "cancelled",
+  PaymentFailed = "Payment_failed",
+  PaymentCancel = "Payment_cancel"
 }
 
 export type TRideStatus = RideStatus; 
@@ -14,6 +16,7 @@ export type TRideStatus = RideStatus;
 export interface IRide {
   riderId: Types.ObjectId;
   driverId?: Types.ObjectId;
+  payment?:Types.ObjectId,
   pickup: {
     lat: number;
     lng: number;
@@ -25,10 +28,7 @@ export interface IRide {
     address: string;
   };
   status: RideStatus;
-  history: {
-    status: RideStatus;
-    timestamp: Date;
-  }[];
+
   fare: number;
   distance: number;
   duration: number;

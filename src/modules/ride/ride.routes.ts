@@ -17,7 +17,7 @@ router.post(
 
 // Get all rides (admin only)
 router.get(
-  "/All-rides",
+  "/all-rides",
   checkAuth(Role.Admin, Role.SuperAdmin),
   RideController.getAllRides
 );
@@ -43,12 +43,7 @@ router.get(
   RideController.getRideById
 );
 
-// Get rider's ride history (rider only)
-router.get(
-  "/me/history",
-  checkAuth(Role.Rider),
-  RideController.getRiderRideHistory
-);
+
 
 
 

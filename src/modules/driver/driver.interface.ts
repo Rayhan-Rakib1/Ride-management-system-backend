@@ -21,6 +21,7 @@ export interface IDriver {
   email: string;
   password: string,
   isVerified?: boolean;
+  isDeleted?: boolean; 
   auth: IAuthProvider[];
   role: string;
   approvalStatus: DriverApprovalStatus;

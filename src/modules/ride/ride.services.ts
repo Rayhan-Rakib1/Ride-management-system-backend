@@ -25,7 +25,6 @@ const createRide = async (payload: Partial<IRide>, riderId: any) => {
     pickup: payload.pickup,
     destination: payload.destination,
     status: RideStatus.Requested,
-    history: [{ status: RideStatus.Requested, timestamp: new Date() }],
     duration: payload.duration,
     distance: payload.distance,
     fare: payload.fare,
@@ -55,7 +54,6 @@ const cancelRide = async (rideId: string, riderId: string) => {
     rideId,
     {
       status: RideStatus.Cancelled,
-      history: [...ride.history, { status: RideStatus.Cancelled, timestamp: new Date() }],
       updatedAt: new Date(),
     },
     { new: true, runValidators: true }
@@ -90,6 +88,8 @@ const updateRideStatus = async (rideId: string, driverId: string, status: RideSt
     [RideStatus.InTransit]: [RideStatus.Completed],
     [RideStatus.Completed]: [],
     [RideStatus.Cancelled]: [],
+    [RideStatus.PaymentFailed]: [],
+    [RideStatus.PaymentCancel]: []
   };
 
   if (!validStatusTransitions[ride.status].includes(status)) {
@@ -98,7 +98,6 @@ const updateRideStatus = async (rideId: string, driverId: string, status: RideSt
 
   const updates: Partial<IRide> = {
     status,
-    history: [...ride.history, { status, timestamp: new Date() }],
     updatedAt: new Date(),
   };
 
@@ -135,10 +134,7 @@ const getRideById = async (rideId: string, userId: string, role: string) => {
   return ride;
 };
 
-const getRiderRideHistory = async (riderId: string) => {
-  const rides = await Ride.find({ riderId }).populate("riderId driverId", "name email").sort({ createdAt: -1 });
-  return rides;
-};
+
 
 const getAllRides = async () => {
   const rides = await Ride.find().populate("riderId driverId", "name email").sort({ createdAt: -1 });
@@ -150,6 +146,5 @@ export const RideServices = {
   cancelRide,
   updateRideStatus,
   getRideById,
-  getRiderRideHistory,
   getAllRides,
 };

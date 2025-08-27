@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 
 export enum Role {
   SuperAdmin = "Super_Admin",
@@ -17,9 +18,13 @@ export interface IAuthProvider {
 }
 
 export interface IUser {
+  _id: Types.ObjectId;
   name: string;
   email: string;
+  phone?: string;
+  address?: string;
   isVerified?: boolean;
+  isDeleted?: boolean;
   password?: string;
   role: Role;
   profileImage: string

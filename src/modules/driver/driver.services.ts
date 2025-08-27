@@ -15,19 +15,23 @@ import { envVars } from "../../config/env";
 import { Role } from "../user/user.interface";
 
 const createDriver = async (payload: Partial<IDriver>) => {
-  const {name, email, password, profileImage, ...rest } = payload;
+  const { name, email, password, profileImage, phone, address, ...rest } =
+    payload;
   const isDriverExist = await Driver.findOne({ email });
   const isUserExist = await User.findOne({ email });
 
-  if(isUserExist){
-    throw new AppError(StatusCodes.BAD_REQUEST, 'You are already driver')
+  if (isUserExist) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "You are already driver");
   }
 
   if (isDriverExist) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Driver already exist");
   }
   if (!envVars.BCRYPT_SALT_ROUND) {
-    throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, "Salt round not configured");
+    throw new AppError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      "Salt round not configured"
+    );
   }
 
   const hashPassword = await bcrypt.hash(
@@ -44,20 +48,25 @@ const createDriver = async (payload: Partial<IDriver>) => {
     name: name,
     email: email,
     password: hashPassword,
+    address: address,
+    phone: phone,
     auth: [authProvider],
     role: Role.Driver,
-    ...rest
+    profileImage: profileImage,
+    ...rest,
   });
 
   const user = await User.create({
     name: name,
     email: email,
     password: hashPassword,
+    address: address,
+    phone: phone,
     auth: [authProvider],
     profileImage: profileImage,
     role: Role.Driver,
-  })
-  return {driver, user};
+  });
+  return { driver, user };
 };
 
 const getAllDriver = async () => {
@@ -119,7 +128,7 @@ const updateDriverStatus = async (
 };
 
 const getDriverRideHistory = async (id: string) => {
-  const driver = await Driver.findOne({ userId: id });
+  const driver = await Driver.findOne({ _id: id });
   if (!driver) {
     throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
   }
@@ -132,7 +141,7 @@ const getDriverRideHistory = async (id: string) => {
 };
 
 const getDriverEarnings = async (id: string) => {
-  const driver = await Driver.findOne({ userId: id });
+  const driver = await Driver.findOne({ _id: id });
   if (!driver) {
     throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
   }
@@ -252,6 +261,15 @@ const updateRideStatus = async (
   return result;
 };
 
+const deleteDriverAccount = async (userId: string) => {
+  const isUserExist = await User.findById(userId);
+  if (!isUserExist) {
+    throw new AppError(404, "user no found");
+  }
+
+  await User.findByIdAndDelete(userId);
+};
+
 export const DriverServices = {
   createDriver,
   getAllDriver,
@@ -262,4 +280,5 @@ export const DriverServices = {
   getDriverEarnings,
   acceptRide,
   updateRideStatus,
+  deleteDriverAccount,
 };

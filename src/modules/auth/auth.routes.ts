@@ -9,7 +9,7 @@ const router = Router();
 router.post('/login', authController.credentialLogin)
 router.post('/refresh-token', authController.getNewAccessToken)
 router.post('/logout', authController.userLogout)
-router.post('/reset-password', checkAuth(...Object.values(Role)), authController.resetPassword);
+router.patch('/reset-password', checkAuth(...Object.values(Role)), authController.resetPassword);
 router.get('/google', (req, res, next) => {
   const redirect = req?.query?.redirect || '';
   passport.authenticate('google', {

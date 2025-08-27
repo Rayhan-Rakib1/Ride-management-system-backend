@@ -7,7 +7,7 @@ const router = express.Router();
 // rider register
 router.post("/create-rider", RiderController.createRider);
 // admin only
-router.get("/all-rider", RiderController.getAllRiders);
+router.get("/all-riders", RiderController.getAllRiders);
 // rider only access
 router.get("/me", RiderController.getRiderProfile);
 // rider only update own profile
@@ -18,7 +18,7 @@ router.get("/me/history", RiderController.getRiderHistory);
 router.get("/:id", RiderController.getRiderById);
 // Delete account Driver only
 router.delete("/me", RiderController.deleteRiderAccountMe);
-
+// admin
 router.delete("/:id", RiderController.deleteRiderAccountById);
 
 export const riderRoutes = router;

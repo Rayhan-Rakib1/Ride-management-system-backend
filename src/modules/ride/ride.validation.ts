@@ -4,7 +4,7 @@ import { RideStatus } from "./ride.interface";
 
 
 export const createRideZodSchema = z.object({
-  riderId: z.string({
+  rider: z.string({
     required_error: "Rider ID is required",
     invalid_type_error: "Rider ID must be a string",
   }),

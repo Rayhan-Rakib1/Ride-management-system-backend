@@ -3,6 +3,8 @@ import { User } from "../user/user.model";
 import AppError from "../../ErrorHandler/AppError";
 import { redisClient } from "../../config/redisClient";
 import { sendEmail } from "../../utils/sendEmail";
+import { Rider } from "../Rider/rider.model";
+import { Driver } from "../driver/driver.model";
 
 const OTP_EXPIRATION = 5 * 60;
 
@@ -71,6 +73,9 @@ const verifyOTP = async (email: string, otp: string) => {
 
     await Promise.all([
         User.updateOne({ email }, { isVerified: true }, { runValidators: true }),
+        Rider.updateOne({ email }, { isVerified: true }, { runValidators: true }),
+        Driver.updateOne({ email }, { isVerified: true }, { runValidators: true }),
+        
         redisClient.del([redisKey])
     ])
 

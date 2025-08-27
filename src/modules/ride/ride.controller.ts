@@ -77,22 +77,7 @@ const getRideById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getRiderRideHistory = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as JwtPayload;
 
-  if (!user || !user.userId) {
-    throw new AppError(StatusCodes.UNAUTHORIZED, "User not authenticated");
-  }
-
-  const result = await RideServices.getRiderRideHistory(user.userId);
-
-  sendResponse(res, {
-    message: "Rider ride history retrieved successfully",
-    success: true,
-    statusCode: StatusCodes.OK,
-    data: result,
-  });
-});
 
 const getAllRides = catchAsync(async (req: Request, res: Response) => {
   const result = await RideServices.getAllRides();
@@ -110,6 +95,5 @@ export const RideController = {
   cancelRide,
   updateRideStatus,
   getRideById,
-  getRiderRideHistory,
   getAllRides,
 };

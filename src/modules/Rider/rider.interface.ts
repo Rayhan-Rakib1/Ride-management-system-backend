@@ -15,6 +15,7 @@ export interface IRider {
   name: string;
   email: string;
   isVerified?: boolean;
+  isDeleted?: boolean;
   password?: string;
   role: "Rider";
   auth?: IAuthProvider[];

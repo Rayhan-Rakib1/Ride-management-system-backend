@@ -11,8 +11,8 @@ export enum PAYMENT_STATUS {
 
 export interface IPayment {
   rideId: Types.ObjectId;
-  userId: Types.ObjectId;
-  PaymentAmount: number;
+  riderId: Types.ObjectId;
+  paymentAmount: number;
   currency: string;
   paymentStatus: PAYMENT_STATUS;
   transactionId: string;

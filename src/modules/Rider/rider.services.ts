@@ -9,7 +9,8 @@ import { Role } from "../user/user.interface";
 import { Ride } from "../ride/ride.model";
 
 const createRider = async (payload: Partial<IRider>) => {
-  const { name, email, password, profileImage, ...rest } = payload;
+  const { name, email, password, profileImage, address, phone, ...rest } =
+    payload;
   const isRiderExist = await Rider.findOne({ email });
   if (isRiderExist) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Rider already exist");
@@ -28,7 +29,11 @@ const createRider = async (payload: Partial<IRider>) => {
     name: name,
     email: email,
     password: hashPassword,
+    address: address,
+    phone: phone,
+    profileImage: profileImage,
     auth: [authProvider],
+    role: Role.Rider,
     ...rest,
   });
 
@@ -36,6 +41,8 @@ const createRider = async (payload: Partial<IRider>) => {
     name: name,
     email: email,
     password: hashPassword,
+    address: address,
+    phone: phone,
     profileImage: profileImage,
     auth: [authProvider],
     role: Role.Rider,
@@ -99,11 +106,11 @@ const getRiderById = async (rideId: string) => {
   return rider;
 };
 const deleteRiderAccountMe = async (rideId: string) => {
-  await Rider.findByIdAndDelete(rideId)
+  await Rider.findByIdAndDelete(rideId);
   return;
 };
 const deleteRiderAccountById = async (rideId: string) => {
-  await Rider.findByIdAndDelete(rideId)
+  await Rider.findByIdAndDelete(rideId);
   return;
 };
 
@@ -115,5 +122,5 @@ export const RiderServices = {
   getRiderHistory,
   getRiderById,
   deleteRiderAccountMe,
-  deleteRiderAccountById
+  deleteRiderAccountById,
 };

@@ -8,13 +8,13 @@ const paymentSchema = new Schema<IPayment>({
     required: true,
     unique: true,
   },
-  userId: {
+  riderId: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Rider",
     required: true,
     unique: true,
   },
-  PaymentAmount: { type: Number, require: true },
+  paymentAmount: { type: Number, require: true },
   paymentStatus: {
     type: String,
     enum: Object.values(PAYMENT_STATUS),

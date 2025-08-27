@@ -4,5 +4,5 @@ export interface ISSLCormmerz {
   address: string;
   phoneNumber: string;
   transactionId: string;
-  paymentAmount: string;
+  paymentAmount: number;
 }

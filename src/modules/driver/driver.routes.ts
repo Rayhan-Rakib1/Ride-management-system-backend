@@ -48,14 +48,14 @@ router.patch(
 
 // Get driver's ride history (driver only)
 router.get(
-  '/:id/ride-history',
+  '/ride-history/driver',
   checkAuth(Role.Driver),
   DriverController.getDriverRideHistory
 );
 
 // Get driver's earnings history (driver only)
 router.get(
-  '/earnings/:id',
+  '/earnings/driver',
   checkAuth(Role.Driver),
   DriverController.getDriverEarnings
 );
@@ -73,5 +73,7 @@ router.patch(
   checkAuth(Role.Driver),
   DriverController.updateRideStatus
 );
+
+router.delete("/me", DriverController.deleteDriverAccount)
 
 export const driversRoutes = router;

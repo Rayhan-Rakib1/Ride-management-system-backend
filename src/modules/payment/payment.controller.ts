@@ -6,8 +6,8 @@ import { PaymentServices } from "./payment.services";
 import { SSLServices } from "../sslCormmerz/sslCormerz.services";
 
 const initPayment = catchAsync(async (req: Request, res: Response) => {
-  const rideID = req.params.rideID;
-  const result = await PaymentServices.initPayment(rideID as string);
+  const rideId = req.params.rideId;
+  const result = await PaymentServices.initPayment(rideId as string);
 
   sendResponse(res, {
     statusCode: 201,
