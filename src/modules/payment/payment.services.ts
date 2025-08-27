@@ -63,6 +63,7 @@ const successPayment = async (query: Record<string, string>) => {
 
     await session.commitTransaction();
     session.endSession();
+      return { success: true, message: "Payment successful" }
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -89,6 +90,7 @@ const failPayment = async (query: Record<string, string>) => {
 
     await session.commitTransaction();
     session.endSession();
+      return { success: false, message: "Payment failed" }
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -114,6 +116,7 @@ const cancelPayment = async (query: Record<string, string>) => {
 
     await session.abortTransaction();
     session.endSession();
+      return { success: false, message: "Payment Cancelled" }
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

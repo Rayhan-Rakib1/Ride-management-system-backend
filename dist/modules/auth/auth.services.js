@@ -64,11 +64,11 @@ const resetPassword = (oldPassword, newPassword, decodedToken) => __awaiter(void
     if (!isOldPassword) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Enter your old password");
     }
-    user.password = yield bcryptjs_1.default.hash(newPassword, Number(env_1.envVers.BCRYPT_SALT_ROUND));
+    user.password = yield bcryptjs_1.default.hash(newPassword, Number(env_1.envVars.BCRYPT_SALT_ROUND));
     user.save();
 });
 exports.authService = {
     credentialLogin,
     getNewAccessToken,
-    resetPassword
+    resetPassword,
 };

@@ -13,7 +13,7 @@ const router = (0, express_1.Router)();
 router.post('/login', auth_controller_1.authController.credentialLogin);
 router.post('/refresh-token', auth_controller_1.authController.getNewAccessToken);
 router.post('/logout', auth_controller_1.authController.userLogout);
-router.post('/reset-password', (0, check_auth_1.checkAuth)(...Object.values(user_interface_1.Role)), auth_controller_1.authController.resetPassword);
+router.patch('/reset-password', (0, check_auth_1.checkAuth)(...Object.values(user_interface_1.Role)), auth_controller_1.authController.resetPassword);
 router.get('/google', (req, res, next) => {
     var _a;
     const redirect = ((_a = req === null || req === void 0 ? void 0 : req.query) === null || _a === void 0 ? void 0 : _a.redirect) || '';

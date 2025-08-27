@@ -16,13 +16,14 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = require("./app");
 const env_1 = require("./config/env");
 const super_admin_1 = require("./utils/super.admin");
+const redisClient_1 = require("./config/redisClient");
 let server;
 function startServer() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield mongoose_1.default.connect(env_1.envVers.DB_URL);
-            server = app_1.app.listen(env_1.envVers.PORT, () => {
-                console.log(`server is running on port ${env_1.envVers.PORT}`);
+            yield mongoose_1.default.connect(env_1.envVars.DB_URL);
+            server = app_1.app.listen(env_1.envVars.PORT, () => {
+                console.log(`server is running on port ${env_1.envVars.PORT}`);
             });
         }
         catch (error) {
@@ -31,6 +32,7 @@ function startServer() {
     });
 }
 (() => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, redisClient_1.connectRedis)();
     yield startServer();
     yield (0, super_admin_1.superAdmin)();
 }))();

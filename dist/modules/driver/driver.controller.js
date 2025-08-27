@@ -20,11 +20,8 @@ const driver_services_1 = require("./driver.services");
 const AppError_1 = __importDefault(require("../../ErrorHandler/AppError"));
 const driver_model_1 = require("./driver.model");
 const createDriver = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user;
-    if (!user || !user.userId) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.UNAUTHORIZED, "User not authenticated");
-    }
-    const result = yield driver_services_1.DriverServices.createDriver(req.body, user.userId);
+    const payload = req.body;
+    const result = yield driver_services_1.DriverServices.createDriver(payload);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Driver created successfully",
         success: true,
@@ -45,7 +42,7 @@ const getDriverById = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
     const { id } = req.params;
     const user = req.user;
     const driver = yield driver_model_1.Driver.findById(id);
-    if (user.userId !== (driver === null || driver === void 0 ? void 0 : driver.userId.toString())) {
+    if (user.email !== (driver === null || driver === void 0 ? void 0 : driver.email.toString())) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Drivers can only access their own profile");
     }
     const result = yield driver_services_1.DriverServices.getDriverById(id);
@@ -68,7 +65,7 @@ const updateDriverAvailability = (0, catchAsync_1.catchAsync)((req, res) => __aw
     if (!driver) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
     }
-    if (user.userId !== driver.userId.toString()) {
+    if (user.email !== driver.email.toString()) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Drivers can only update their own availability");
     }
     const result = yield driver_services_1.DriverServices.updateDriverAvailability(id, availability);
@@ -91,12 +88,8 @@ const updateDriverStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(
     });
 }));
 const getDriverRideHistory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const user = req.user;
-    if (user.userId !== id) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Drivers can only view their own ride history");
-    }
-    const result = yield driver_services_1.DriverServices.getDriverRideHistory(id);
+    const { driverId } = req.user;
+    const result = yield driver_services_1.DriverServices.getDriverRideHistory(driverId);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Driver ride history retrieved successfully",
         success: true,
@@ -105,12 +98,8 @@ const getDriverRideHistory = (0, catchAsync_1.catchAsync)((req, res) => __awaite
     });
 }));
 const getDriverEarnings = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const user = req.user;
-    if (user.userId !== id) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Drivers can only view their own earnings");
-    }
-    const result = yield driver_services_1.DriverServices.getDriverEarnings(id);
+    const { driverId } = req.user;
+    const result = yield driver_services_1.DriverServices.getDriverEarnings(driverId);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Driver earnings retrieved successfully",
         success: true,
@@ -141,6 +130,16 @@ const updateRideStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(vo
         data: result,
     });
 }));
+const deleteDriverAccount = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.user;
+    yield driver_services_1.DriverServices.deleteDriverAccount(userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        message: 'Driver deleted successfully',
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        data: null
+    });
+}));
 exports.DriverController = {
     createDriver,
     getAllDrivers,
@@ -151,4 +150,5 @@ exports.DriverController = {
     getDriverEarnings,
     acceptRide,
     updateRideStatus,
+    deleteDriverAccount
 };

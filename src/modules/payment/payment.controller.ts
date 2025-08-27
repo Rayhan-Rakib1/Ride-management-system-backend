@@ -35,7 +35,7 @@ const failPayment = catchAsync(async (req: Request, res: Response) => {
     query as Record<string, string>
   );
 
-  if (result.success) {
+  if (!result.success) {
     res.redirect(
       `${envVars.SSL.SSL_FAIL_FRONTEND_URL}?transactionId=${query.transactionId}&message=${result.message}&amount=${query.amount}&status=${query.status}`
     );
@@ -47,7 +47,7 @@ const cancelPayment = catchAsync(async (req: Request, res: Response) => {
     query as Record<string, string>
   );
 
-  if (result.success) {
+  if (!result.success) {
     res.redirect(
       `${envVars.SSL.SSL_CANCEL_FRONTEND_URL}?transactionId=${query.transactionId}&message=${result.message}&amount=${query.amount}&status=${query.status}`
     );

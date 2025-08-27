@@ -6,12 +6,16 @@ const ride_interface_1 = require("./ride.interface");
 const rideSchema = new mongoose_1.Schema({
     riderId: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Rider",
         required: [true, "Rider ID is required"],
     },
     driverId: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Driver",
+    },
+    payment: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "Payment",
     },
     pickup: {
         lat: {
@@ -49,23 +53,6 @@ const rideSchema = new mongoose_1.Schema({
         },
         default: ride_interface_1.RideStatus.Requested,
     },
-    history: [
-        {
-            status: {
-                type: String,
-                enum: {
-                    values: Object.values(ride_interface_1.RideStatus),
-                    message: "{VALUE} is not a valid history status",
-                },
-                required: [true, "History status is required"],
-            },
-            timestamp: {
-                type: Date,
-                required: [true, "History timestamp is required"],
-                default: Date.now,
-            },
-        },
-    ],
     fare: {
         type: Number,
         min: [0, "Fare cannot be negative"],

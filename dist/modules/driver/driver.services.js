@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -20,28 +31,40 @@ const driver_interface_1 = require("./driver.interface");
 const driver_model_1 = require("./driver.model");
 const user_model_1 = require("../user/user.model");
 const ride_model_1 = require("../ride/ride.model");
-const createDriver = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const isDriverExist = yield driver_model_1.Driver.findOne({ userId });
+const ride_interface_1 = require("../ride/ride.interface");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const env_1 = require("../../config/env");
+const user_interface_1 = require("../user/user.interface");
+const createDriver = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, email, password, profileImage, phone, address } = payload, rest = __rest(payload, ["name", "email", "password", "profileImage", "phone", "address"]);
+    const isDriverExist = yield driver_model_1.Driver.findOne({ email });
+    const isUserExist = yield user_model_1.User.findOne({ email });
+    if (isUserExist) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "You are already driver");
+    }
     if (isDriverExist) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Driver already exists");
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Driver already exist");
     }
-    const user = yield user_model_1.User.findById(userId);
-    if (!user) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found");
+    if (!env_1.envVars.BCRYPT_SALT_ROUND) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, "Salt round not configured");
     }
-    yield user_model_1.User.findByIdAndUpdate(userId, { role: "Driver" }, { new: true, runValidators: true });
-    const driverData = {
-        userId,
-        role: "Driver",
-        vehicleInfo: payload.vehicleInfo,
-        license: payload.license,
-        approvalStatus: "pending",
-        isAvailable: false,
-        totalRides: 0,
-        totalEarnings: 0,
+    const hashPassword = yield bcryptjs_1.default.hash(password, Number(env_1.envVars.BCRYPT_SALT_ROUND) | 10);
+    const authProvider = {
+        provider: "credential",
+        providerId: email,
     };
-    const driver = yield driver_model_1.Driver.create(driverData);
-    return driver;
+    const driver = yield driver_model_1.Driver.create(Object.assign({ name: name, email: email, password: hashPassword, address: address, phone: phone, auth: [authProvider], role: user_interface_1.Role.Driver, profileImage: profileImage }, rest));
+    const user = yield user_model_1.User.create({
+        name: name,
+        email: email,
+        password: hashPassword,
+        address: address,
+        phone: phone,
+        auth: [authProvider],
+        profileImage: profileImage,
+        role: user_interface_1.Role.Driver,
+    });
+    return { driver, user };
 });
 const getAllDriver = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield driver_model_1.Driver.find().populate("userId", "name email phone");
@@ -76,7 +99,7 @@ const updateDriverStatus = (id, approvalStatus) => __awaiter(void 0, void 0, voi
     return result;
 });
 const getDriverRideHistory = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const driver = yield driver_model_1.Driver.findOne({ userId: id });
+    const driver = yield driver_model_1.Driver.findOne({ _id: id });
     if (!driver) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
     }
@@ -84,7 +107,7 @@ const getDriverRideHistory = (id) => __awaiter(void 0, void 0, void 0, function*
     return rides;
 });
 const getDriverEarnings = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const driver = yield driver_model_1.Driver.findOne({ userId: id });
+    const driver = yield driver_model_1.Driver.findOne({ _id: id });
     if (!driver) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
     }
@@ -148,7 +171,7 @@ const updateRideStatus = (rideId, driverId, status) => __awaiter(void 0, void 0,
         throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, `Invalid status transition from ${ride.status} to ${status}`);
     }
     const updates = { status, updatedAt: new Date() };
-    if (status === "Completed") {
+    if (status === ride_interface_1.RideStatus.Completed) {
         updates.fare = ride.fare || 0; // Ensure fare is recorded
         yield driver_model_1.Driver.findOneAndUpdate({ userId: driverId }, {
             $inc: { totalRides: 1, totalEarnings: updates.fare },
@@ -162,6 +185,13 @@ const updateRideStatus = (rideId, driverId, status) => __awaiter(void 0, void 0,
     }).populate("riderId", "name email");
     return result;
 });
+const deleteDriverAccount = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const isUserExist = yield user_model_1.User.findById(userId);
+    if (!isUserExist) {
+        throw new AppError_1.default(404, "user no found");
+    }
+    yield user_model_1.User.findByIdAndDelete(userId);
+});
 exports.DriverServices = {
     createDriver,
     getAllDriver,
@@ -172,4 +202,5 @@ exports.DriverServices = {
     getDriverEarnings,
     acceptRide,
     updateRideStatus,
+    deleteDriverAccount,
 };

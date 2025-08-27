@@ -23,23 +23,24 @@ const mongoose_1 = require("mongoose");
 const superAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const isSuperAdminExist = yield user_model_1.User.findOne({
-            email: env_1.envVers.SUPER_ADMIN_EMAIL,
+            email: env_1.envVars.SUPER_ADMIN_EMAIL,
         });
         if (isSuperAdminExist) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Super admin already exist");
         }
-        const hashPassword = yield bcryptjs_1.default.hash(env_1.envVers.SUPER_ADMIN_PASSWORD, Number(env_1.envVers.BCRYPT_SALT_ROUND));
+        const hashPassword = yield bcryptjs_1.default.hash(env_1.envVars.SUPER_ADMIN_PASSWORD, Number(env_1.envVars.BCRYPT_SALT_ROUND));
         const authProvider = {
             provider: "credential",
-            providerId: env_1.envVers.SUPER_ADMIN_EMAIL,
+            providerId: env_1.envVars.SUPER_ADMIN_EMAIL,
         };
         const payload = {
             _id: new mongoose_1.Types.ObjectId(),
             name: "Super admin",
-            email: env_1.envVers.SUPER_ADMIN_EMAIL,
+            email: env_1.envVars.SUPER_ADMIN_EMAIL,
             password: hashPassword,
             auth: [authProvider],
             role: user_interface_1.Role.SuperAdmin,
+            profileImage: ""
         };
         yield user_model_1.User.create(payload);
     }

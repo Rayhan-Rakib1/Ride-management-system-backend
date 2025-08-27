@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { envVars } from "../../config/env";
 import { ISSLCormmerz } from "./sslCormerz.interface";
 import AppError from "../../ErrorHandler/AppError";
 import { StatusCodes } from "http-status-codes";
+import { Payment } from "../payment/payment.model";
 
 const sslPaymentInit = async (payload: ISSLCormmerz) => {
   try {
@@ -48,7 +50,6 @@ const sslPaymentInit = async (payload: ISSLCormmerz) => {
     });
     return response.data;
   } catch (error: any) {
-    console.log("payment error occured", error.message);
     throw new AppError(StatusCodes.BAD_REQUEST, error.message);
   }
 };
@@ -60,14 +61,12 @@ const validatePayment = async (payload: any) => {
       url: `${envVars.SSL.SSL_VALIDATION_API}?val_id=${payload.val_id}&store_id=${envVars.SSL.STORE_ID}&store_passwd=${envVars.SSL.STORE_PASS}`,
     });
 
-    console.log("sslCormmerz validate api response", response.data);
     await Payment.updateOne(
       { transactionId: payload.tran_id },
       { paymentGatewayData: response.data },
       { runValidators: true }
     );
   } catch (error: any) {
-    console.log(error);
     throw new AppError(StatusCodes.BAD_REQUEST, "Payment validation error");
   }
 };

@@ -74,19 +74,6 @@ const getRideById = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
-const getRiderRideHistory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user;
-    if (!user || !user.userId) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.UNAUTHORIZED, "User not authenticated");
-    }
-    const result = yield ride_services_1.RideServices.getRiderRideHistory(user.userId);
-    (0, sendResponse_1.sendResponse)(res, {
-        message: "Rider ride history retrieved successfully",
-        success: true,
-        statusCode: http_status_codes_1.StatusCodes.OK,
-        data: result,
-    });
-}));
 const getAllRides = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield ride_services_1.RideServices.getAllRides();
     (0, sendResponse_1.sendResponse)(res, {
@@ -101,6 +88,5 @@ exports.RideController = {
     cancelRide,
     updateRideStatus,
     getRideById,
-    getRiderRideHistory,
     getAllRides,
 };

@@ -27,13 +27,13 @@ const createToken = (user) => {
         email: user.email,
         role: user.role,
     };
-    const accessToken = (0, jwt_1.generateToken)(jwtPayload, env_1.envVers.JWT_ACCESS_SECRET, env_1.envVers.JWT_ACCESS_EXPIRES);
-    const refreshToken = (0, jwt_1.generateToken)(jwtPayload, env_1.envVers.JWT_REFRESH_SECRET, env_1.envVers.JWT_REFRESH_EXPIRES);
+    const accessToken = (0, jwt_1.generateToken)(jwtPayload, env_1.envVars.JWT_ACCESS_SECRET, env_1.envVars.JWT_ACCESS_EXPIRES);
+    const refreshToken = (0, jwt_1.generateToken)(jwtPayload, env_1.envVars.JWT_REFRESH_SECRET, env_1.envVars.JWT_REFRESH_EXPIRES);
     return { accessToken, refreshToken };
 };
 exports.createToken = createToken;
 const getNewAccessTokenUsingRefreshToken = (refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
-    const verifiedRefreshToken = (0, jwt_1.verifyToken)(refreshToken, env_1.envVers.JWT_REFRESH_SECRET);
+    const verifiedRefreshToken = (0, jwt_1.verifyToken)(refreshToken, env_1.envVars.JWT_REFRESH_SECRET);
     const isUserExist = yield user_model_1.User.findOne({ email: verifiedRefreshToken.email });
     if (!isUserExist) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User does not exist");
@@ -43,7 +43,7 @@ const getNewAccessTokenUsingRefreshToken = (refreshToken) => __awaiter(void 0, v
         email: isUserExist.email,
         role: isUserExist.role,
     };
-    const accessToken = (0, jwt_1.generateToken)(jwtPayload, env_1.envVers.JWT_ACCESS_SECRET, env_1.envVers.JWT_ACCESS_EXPIRES);
+    const accessToken = (0, jwt_1.generateToken)(jwtPayload, env_1.envVars.JWT_ACCESS_SECRET, env_1.envVars.JWT_ACCESS_EXPIRES);
     return accessToken;
 });
 exports.getNewAccessTokenUsingRefreshToken = getNewAccessTokenUsingRefreshToken;

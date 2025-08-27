@@ -13,8 +13,13 @@ const authSchema = new mongoose_1.Schema({
 const userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
-    password: { type: String },
-    role: { type: String, enum: Object.values(user_interface_1.Role), default: user_interface_1.Role.Rider },
+    password: { type: String, required: true },
+    phone: { type: String },
+    address: { type: String },
+    profileImage: { type: String, default: "" }, // default instead of required
+    role: { type: String },
+    isVerified: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
     status: {
         type: String,
         enum: Object.values(user_interface_1.User_Status),

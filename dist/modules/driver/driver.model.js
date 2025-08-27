@@ -3,22 +3,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Driver = void 0;
 const mongoose_1 = require("mongoose");
 const driver_interface_1 = require("./driver.interface");
-const user_interface_1 = require("../user/user.interface");
 const driverSchema = new mongoose_1.Schema({
-    userId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
-        required: [true, "User ID is required"],
-        unique: true, // Ensure one driver per user
-    },
-    role: {
+    name: { type: String, required: [true, "Name is required"], trim: true },
+    email: {
         type: String,
-        default: user_interface_1.Role.Driver,
-        enum: {
-            values: [user_interface_1.Role.Driver],
-            message: "{VALUE} is not a valid role for drivers",
-        },
+        required: [true, "Email is required"],
+        unique: true,
+        trim: true,
     },
+    isVerified: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
+    password: { type: String, required: [true, "Password is required"] },
+    role: { type: String, required: true },
+    auth: [{ provider: { type: String }, providerId: { type: String } }],
     approvalStatus: {
         type: String,
         enum: {
@@ -38,10 +35,7 @@ const driverSchema = new mongoose_1.Schema({
     vehicleInfo: {
         vehicleType: {
             type: String,
-            enum: {
-                values: ["car", "bike", "van"],
-                message: "{VALUE} is not a valid vehicle type",
-            },
+            enum: ["car", "bike", "van"],
             required: [true, "Vehicle type is required"],
         },
         number: {
@@ -54,10 +48,7 @@ const driverSchema = new mongoose_1.Schema({
             required: [true, "Vehicle color is required"],
             trim: true,
         },
-        model: {
-            type: String,
-            trim: true,
-        },
+        model: { type: String, trim: true },
         year: {
             type: Number,
             min: [1900, "Vehicle year must be after 1900"],
@@ -82,17 +73,31 @@ const driverSchema = new mongoose_1.Schema({
         type: {
             type: String,
             enum: ["Point"],
-            default: "Point",
         },
         coordinates: {
             type: [Number], // [longitude, latitude]
-            required: [true, "Coordinates are required if location is provided"],
+            validate: {
+                validator: function (val) {
+                    if (!val)
+                        return true; // optional
+                    return val.length === 2;
+                },
+                message: "Coordinates must be [longitude, latitude]",
+            },
         },
     },
+    // Extra fields from interface
+    address: { type: String, required: [true, "Address is required"] },
+    phone: { type: String, required: [true, "Phone number is required"] },
+    profileImage: { type: String },
+    gender: { type: String, enum: ["male", "female", "other"] },
+    dateOfBirth: { type: Date },
+    nationality: { type: String },
     rating: {
         type: Number,
         min: [1, "Rating must be between 1 and 5"],
         max: [5, "Rating must be between 1 and 5"],
+        default: 5,
     },
     totalRides: {
         type: Number,
@@ -104,7 +109,6 @@ const driverSchema = new mongoose_1.Schema({
         default: 0,
         min: [0, "Total earnings cannot be negative"],
     },
-}, {
-    timestamps: true,
-});
+}, { timestamps: true });
+driverSchema.index({ currentLocation: "2dsphere" }); // for geo queries
 exports.Driver = (0, mongoose_1.model)("Driver", driverSchema);

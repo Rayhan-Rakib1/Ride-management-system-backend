@@ -34,6 +34,7 @@ export const superAdmin = async () => {
       password: hashPassword,
       auth: [authProvider],
       role: Role.SuperAdmin,
+      profileImage: ""
     };
 
     await User.create(payload);

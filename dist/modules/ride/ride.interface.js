@@ -9,4 +9,6 @@ var RideStatus;
     RideStatus["InTransit"] = "in_transit";
     RideStatus["Completed"] = "completed";
     RideStatus["Cancelled"] = "cancelled";
+    RideStatus["PaymentFailed"] = "Payment_failed";
+    RideStatus["PaymentCancel"] = "Payment_cancel";
 })(RideStatus || (exports.RideStatus = RideStatus = {}));

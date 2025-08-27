@@ -9,7 +9,7 @@ import {
 import { Driver } from "./driver.model";
 import { User } from "../user/user.model";
 import { Ride } from "../ride/ride.model";
-import { TRideStatus } from "../ride/ride.interface";
+import { RideStatus, TRideStatus } from "../ride/ride.interface";
 import bcrypt from "bcryptjs";
 import { envVars } from "../../config/env";
 import { Role } from "../user/user.interface";
@@ -240,7 +240,7 @@ const updateRideStatus = async (
     );
   }
   const updates: any = { status, updatedAt: new Date() };
-  if (status === "Completed") {
+  if (status === RideStatus.Completed) {
     updates.fare = ride.fare || 0; // Ensure fare is recorded
     await Driver.findOneAndUpdate(
       { userId: driverId },

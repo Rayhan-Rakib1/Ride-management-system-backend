@@ -11,7 +11,7 @@ const handleCastError_1 = require("../helper/handleCastError");
 const handleZodError_1 = require("../helper/handleZodError");
 const handleValidationError_1 = require("../helper/handleValidationError");
 const globalErrorHandler = (err, req, res, next) => {
-    if (env_1.envVers.NODE_ENV === "development") {
+    if (env_1.envVars.NODE_ENV === "development") {
         console.log(err);
     }
     let statusCode = 500;
@@ -51,8 +51,8 @@ const globalErrorHandler = (err, req, res, next) => {
         success: false,
         message,
         errorSources,
-        err: env_1.envVers.NODE_ENV === 'development' ? err : null,
-        stack: env_1.envVers.NODE_ENV === "development" ? err.stack : null,
+        err: env_1.envVars.NODE_ENV === "development" ? err : null,
+        stack: env_1.envVars.NODE_ENV === "development" ? err.stack : null,
     });
 };
 exports.globalErrorHandler = globalErrorHandler;

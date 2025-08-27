@@ -19,12 +19,13 @@ const env_1 = require("../config/env");
 const user_model_1 = require("../modules/user/user.model");
 const http_status_codes_1 = require("http-status-codes");
 const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const accessToken = req.headers.authorization;
+        const accessToken = ((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1]) || req.cookies.accessToken;
         if (!accessToken) {
             throw new AppError_1.default(403, "Access token not found");
         }
-        const verifiedToken = (0, jwt_1.verifyToken)(accessToken, env_1.envVers.JWT_ACCESS_SECRET);
+        const verifiedToken = (0, jwt_1.verifyToken)(accessToken, env_1.envVars.JWT_ACCESS_SECRET);
         const isUserExist = yield user_model_1.User.findOne({ email: verifiedToken.email });
         if (!isUserExist) {
             throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "You are not authorized");

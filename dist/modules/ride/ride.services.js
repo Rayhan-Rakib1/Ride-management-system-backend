@@ -37,7 +37,6 @@ const createRide = (payload, riderId) => __awaiter(void 0, void 0, void 0, funct
         pickup: payload.pickup,
         destination: payload.destination,
         status: ride_interface_1.RideStatus.Requested,
-        history: [{ status: ride_interface_1.RideStatus.Requested, timestamp: new Date() }],
         duration: payload.duration,
         distance: payload.distance,
         fare: payload.fare,
@@ -60,7 +59,6 @@ const cancelRide = (rideId, riderId) => __awaiter(void 0, void 0, void 0, functi
     }
     const result = yield ride_model_1.Ride.findByIdAndUpdate(rideId, {
         status: ride_interface_1.RideStatus.Cancelled,
-        history: [...ride.history, { status: ride_interface_1.RideStatus.Cancelled, timestamp: new Date() }],
         updatedAt: new Date(),
     }, { new: true, runValidators: true }).populate("riderId", "name email");
     return result;
@@ -88,13 +86,14 @@ const updateRideStatus = (rideId, driverId, status) => __awaiter(void 0, void 0,
         [ride_interface_1.RideStatus.InTransit]: [ride_interface_1.RideStatus.Completed],
         [ride_interface_1.RideStatus.Completed]: [],
         [ride_interface_1.RideStatus.Cancelled]: [],
+        [ride_interface_1.RideStatus.PaymentFailed]: [],
+        [ride_interface_1.RideStatus.PaymentCancel]: []
     };
     if (!validStatusTransitions[ride.status].includes(status)) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, `Invalid status transition from ${ride.status} to ${status}`);
     }
     const updates = {
         status,
-        history: [...ride.history, { status, timestamp: new Date() }],
         updatedAt: new Date(),
     };
     if (status === ride_interface_1.RideStatus.Completed) {
@@ -116,10 +115,6 @@ const getRideById = (rideId, userId, role) => __awaiter(void 0, void 0, void 0, 
     }
     return ride;
 });
-const getRiderRideHistory = (riderId) => __awaiter(void 0, void 0, void 0, function* () {
-    const rides = yield ride_model_1.Ride.find({ riderId }).populate("riderId driverId", "name email").sort({ createdAt: -1 });
-    return rides;
-});
 const getAllRides = () => __awaiter(void 0, void 0, void 0, function* () {
     const rides = yield ride_model_1.Ride.find().populate("riderId driverId", "name email").sort({ createdAt: -1 });
     return rides;
@@ -129,6 +124,5 @@ exports.RideServices = {
     cancelRide,
     updateRideStatus,
     getRideById,
-    getRiderRideHistory,
     getAllRides,
 };
