@@ -144,44 +144,92 @@ A secure, scalable, and role-based backend API for a ride booking system inspire
 ---
 
 ## 📚 Project Structure
-src/
-├── modules/
-│ ├── auth/
-│ │ ├── auth.controller.ts
-│ │ ├── auth.routes.ts
-│ ├── driver/
-│ │ ├── driver.controller.ts
-│ │ ├── driver.validation.ts
-│ │ ├── driver.routes.ts
-│ ├── otp/
-│ │ ├── otp.controller.ts
-│ │ ├── otp.routes.ts
-│ ├── payment/
-│ │ ├── payment.controller.ts
-│ │ ├── payment.routes.ts
-│ ├── ride/
-│ │ ├── ride.controller.ts
-│ │ ├── ride.validation.ts
-│ │ ├── ride.routes.ts
-│ │ ├── ride.interface.ts
-│ │ ├── rideModel.ts
-│ ├── rider/
-│ │ ├── rider.controller.ts
-│ │ ├── rider.validation.ts
-│ │ ├── rider.routes.ts
-│ │ ├── rider.interface.ts
-│ │ ├── riderModel.ts
-│ ├── user/
-│ │ ├── user.controller.ts
-│ │ ├── user.routes.ts
-│ │ ├── user.interface.ts
-├── middlewares/
-│ ├── check.auth.ts
-│ ├── validation.request.ts
-├── utils/
-│ ├── appError.ts
-├── config/
-├── app.ts
+# 📂 Project Structure – Ride Booking API
+
+This document provides an overview of the folder and file organization for the Ride Booking API project.
+
+---
+
+## `src/`  
+The main source folder containing all backend logic.
+
+### `modules/`
+Contains all feature-specific modules, organized by domain.
+
+- **auth/** – Handles user authentication and authorization.
+  - `auth.controller.ts` – Controller logic for login, registration, and auth-related endpoints.
+  - `auth.routes.ts` – Express routes for authentication.
+
+- **driver/** – Manages driver-specific features.
+  - `driver.controller.ts` – Driver operations like accepting rides, updating status, etc.
+  - `driver.validation.ts` – Request validation for driver endpoints.
+  - `driver.routes.ts` – Express routes for driver module.
+
+- **otp/** – Manages OTP verification functionality.
+  - `otp.controller.ts` – Logic to send and verify OTPs.
+  - `otp.routes.ts` – Routes for OTP-related endpoints.
+
+- **payment/** – Handles all payment-related functionality.
+  - `payment.controller.ts` – Payment initiation, validation, success/failure handling.
+  - `payment.routes.ts` – Express routes for payment operations.
+
+- **ride/** – Ride management module.
+  - `ride.controller.ts` – Logic for creating, updating, and tracking rides.
+  - `ride.validation.ts` – Validation for ride requests and updates.
+  - `ride.routes.ts` – Routes for ride-related operations.
+  - `ride.interface.ts` – TypeScript interfaces for ride objects.
+  - `rideModel.ts` – Mongoose model for rides.
+
+- **rider/** – Manages rider-specific functionality.
+  - `rider.controller.ts` – Operations for requesting rides, ride history, etc.
+  - `rider.validation.ts` – Validation for rider requests.
+  - `rider.routes.ts` – Routes for rider module.
+  - `rider.interface.ts` – TypeScript interfaces for rider objects.
+  - `riderModel.ts` – Mongoose model for riders.
+
+- **user/** – Handles common user operations.
+  - `user.controller.ts` – User profile, account management, status updates.
+  - `user.routes.ts` – Routes for user-related endpoints.
+  - `user.interface.ts` – TypeScript interfaces for user objects.
+
+---
+
+### `middlewares/`
+Contains Express middleware functions.
+
+- `check.auth.ts` – Role-based access control and authentication middleware.
+- `validation.request.ts` – Middleware for request validation using Zod or other validators.
+
+---
+
+### `utils/`
+Reusable utility functions and classes.
+
+- `appError.ts` – Custom error class for standardized error handling.
+
+---
+
+### `config/`
+Configuration files such as environment variables, database config, and JWT secrets.
+
+---
+
+### `app.ts`
+The main entry point of the backend application. Sets up Express, connects routes, and initializes middlewares.
+
+---
+
+## ✅ Summary
+
+- All feature modules are separated under `modules/` for scalability.  
+- Middleware functions live under `middlewares/`.  
+- Utility functions are centralized in `utils/`.  
+- Configurations are kept under `config/`.  
+- `app.ts` serves as the backend entry point.  
+
+---
+
+This structure ensures **modular, maintainable, and scalable** code for production-grade Ride Booking APIs.
 
 ## ⭐ Author
 
