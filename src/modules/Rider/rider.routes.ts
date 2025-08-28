@@ -16,7 +16,7 @@ router.put("/me", RiderController.updateRiderProfile);
 router.get("/me/history", RiderController.getRiderHistory);
 // admin and rider
 router.get("/:id", RiderController.getRiderById);
-// Delete account Driver only
+// Delete account rider only
 router.delete("/me", RiderController.deleteRiderAccountMe);
 // admin
 router.delete("/:id", RiderController.deleteRiderAccountById);

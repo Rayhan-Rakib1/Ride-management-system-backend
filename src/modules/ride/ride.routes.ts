@@ -18,7 +18,7 @@ router.post(
 // Get all rides (admin only)
 router.get(
   "/all-rides",
-  checkAuth(Role.Admin, Role.SuperAdmin),
+  checkAuth(Role.Admin, Role.SuperAdmin, Role.Driver),
   RideController.getAllRides
 );
 // Cancel a ride (rider only)

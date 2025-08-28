@@ -31,6 +31,22 @@ const getAllDrivers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getDriverCurrentRide = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as JwtPayload;
+  const driverEmail = user.email;
+  console.log(driverEmail);
+  const result = await DriverServices.getDriverCurrentRide(
+    driverEmail as string
+  );
+
+  sendResponse(res, {
+    success: true,
+    message: "Driver current ride",
+    statusCode: StatusCodes.OK,
+    data: result,
+  });
+});
+
 const getDriverById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = req.user as JwtPayload;
@@ -106,9 +122,9 @@ const updateDriverStatus = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getDriverRideHistory = catchAsync(async (req: Request, res: Response) => {
-  const { driverId } = req.user as JwtPayload;
-
-  const result = await DriverServices.getDriverRideHistory(driverId);
+  const driver = req.user as JwtPayload;
+  const email = driver.email;
+  const result = await DriverServices.getDriverRideHistory(email);
 
   sendResponse(res, {
     message: "Driver ride history retrieved successfully",
@@ -134,8 +150,9 @@ const getDriverEarnings = catchAsync(async (req: Request, res: Response) => {
 const acceptRide = catchAsync(async (req: Request, res: Response) => {
   const { rideId } = req.params;
   const user = req.user as JwtPayload;
+  // console.log(user.userId);
 
-  const result = await DriverServices.acceptRide(rideId, user.userId);
+  const result = await DriverServices.acceptRide(rideId, user.email);
 
   sendResponse(res, {
     message: "Ride accepted successfully",
@@ -152,7 +169,7 @@ const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
 
   const result = await DriverServices.updateRideStatus(
     rideId,
-    user.userId,
+    user.email,
     status
   );
 
@@ -164,17 +181,17 @@ const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteDriverAccount = catchAsync(async(req: Request, res: Response) => {
-     const {userId} = req.user as JwtPayload;
-     await DriverServices.deleteDriverAccount(userId as string);
+const deleteDriverAccount = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.user as JwtPayload;
+  await DriverServices.deleteDriverAccount(userId as string);
 
-     sendResponse(res, {
-      success: true, 
-      message: 'Driver deleted successfully',
-      statusCode: StatusCodes.OK,
-      data: null
-     })
-})
+  sendResponse(res, {
+    success: true,
+    message: "Driver deleted successfully",
+    statusCode: StatusCodes.OK,
+    data: null,
+  });
+});
 
 export const DriverController = {
   createDriver,
@@ -186,5 +203,6 @@ export const DriverController = {
   getDriverEarnings,
   acceptRide,
   updateRideStatus,
-  deleteDriverAccount
+  deleteDriverAccount,
+  getDriverCurrentRide,
 };

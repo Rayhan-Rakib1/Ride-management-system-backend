@@ -4,6 +4,7 @@ import {
   DriverAvailability,
   IDriver,
 } from "./driver.interface";
+import { Role } from "../user/user.interface";
 
 const driverSchema = new Schema<IDriver>(
   {
@@ -18,7 +19,7 @@ const driverSchema = new Schema<IDriver>(
     isDeleted: { type: Boolean, default: false },
     password: { type: String, required: [true, "Password is required"] },
 
-    role: { type: String, required: true },
+    role: { type: String, required: true, default: Role.Driver },
     auth: [{ provider: { type: String }, providerId: { type: String } }],
 
     approvalStatus: {

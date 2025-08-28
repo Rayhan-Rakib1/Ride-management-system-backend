@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { IRider, Rider_Status } from "./rider.interface";
+import { Role } from "../user/user.interface";
 
 const RiderSchema = new Schema<IRider>(
   {
@@ -8,7 +9,7 @@ const RiderSchema = new Schema<IRider>(
     isVerified: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
     password: { type: String },
-    role: { type: String, required: true },
+    role: { type: String, required: true, default: Role.Rider },
     auth: [{ provider: String, providerId: String }],
     status: {
       type: String,

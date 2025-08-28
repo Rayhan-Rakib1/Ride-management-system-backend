@@ -21,6 +21,9 @@ router.get(
   DriverController.getAllDrivers
 );
 
+// current driver ride
+router.get('/driver-current-ride',checkAuth(Role.Driver), DriverController.getDriverCurrentRide)
+
 // Get single driver profile (driver or admin)
 router.get(
   '/:id',
@@ -66,6 +69,8 @@ router.patch(
   checkAuth(Role.Driver),
   DriverController.acceptRide
 );
+
+
 
 // Update ride status (driver only)
 router.patch(

@@ -6,7 +6,7 @@ const baseDriverSchema = {
   name: z.string({ required_error: "Name is required" }).min(1).trim(),
   email: z.string({ required_error: "Email is required" }).email(),
   password: z.string({ required_error: "Password is required" }).min(6),
-  role: z.string({ required_error: "Role is required" }),
+  role: z.string().optional(),
 
   phone: z.string({ required_error: "Phone is required" }).min(5).trim(),
   address: z.string({ required_error: "Address is required" }).min(3).trim(),

@@ -70,8 +70,27 @@ const createDriver = async (payload: Partial<IDriver>) => {
 };
 
 const getAllDriver = async () => {
-  const result = await Driver.find().populate("userId", "name email phone");
+  const result = await Driver.find();
   return result;
+};
+
+const getDriverCurrentRide = async (email: string) => {
+  const driver = await Driver.findOne({ email });
+  if (!driver) {
+    throw new AppError(401, "driver not found");
+  }
+  const driverDoc = await Driver.findOne({ email }).select("_id");
+  const driverId = driverDoc?._id;
+  // console.log(driverId);
+  // console.log(driver);
+
+  const currentRideDriver = await Ride.find({
+    driverId: driverId,
+    status: { $ne: RideStatus.Requested }
+  })
+    .populate("riderId", "name email phone gender")
+    .populate("driverId", "name email phone gender ");
+  return currentRideDriver;
 };
 
 const getDriverById = async (id: string) => {
@@ -127,15 +146,18 @@ const updateDriverStatus = async (
   return result;
 };
 
-const getDriverRideHistory = async (id: string) => {
-  const driver = await Driver.findOne({ _id: id });
+const getDriverRideHistory = async (driverEmail: string) => {
+  const driverDoc = await Driver.findOne({email: driverEmail}).select("_id");
+  const id = driverDoc?._id;
+  const driver = await Driver.findOne({email: driverEmail});
   if (!driver) {
     throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
   }
 
+
   const rides = await Ride.find({ driverId: id }).populate(
     "riderId",
-    "name email"
+    "name email address phone gender fare rating"
   );
   return rides;
 };
@@ -155,15 +177,19 @@ const getDriverEarnings = async (id: string) => {
   };
 };
 
-const acceptRide = async (rideId: string, driverId: string) => {
-  const driver = await Driver.findOne({ userId: driverId });
+const acceptRide = async (rideId: string, email: string) => {
+  const driverDoc = await Driver.findOne({ email }).select("_id");
+  if (!driverDoc) throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
+  const driverId = driverDoc._id;
+
+  const driver = await Driver.findOne({ email });
   if (!driver) {
     throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
   }
 
-  if (driver.approvalStatus !== "approved") {
-    throw new AppError(StatusCodes.FORBIDDEN, "Driver is not approved");
-  }
+  // if (driver.approvalStatus !== DriverApprovalStatus.Approved) {
+  //   throw new AppError(StatusCodes.FORBIDDEN, "Driver is not approved");
+  // }
 
   if (!driver.availability) {
     throw new AppError(StatusCodes.FORBIDDEN, "Driver is not available");
@@ -205,10 +231,13 @@ const acceptRide = async (rideId: string, driverId: string) => {
 
 const updateRideStatus = async (
   rideId: string,
-  driverId: string,
+  email: string,
   status: TRideStatus
 ) => {
-  const driver = await Driver.findOne({ userId: driverId });
+  const driverDoc = await Driver.findOne({ email }).select("_id");
+  if (!driverDoc) throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
+  const driverId = driverDoc._id;
+  const driver = await Driver.findOne({ email }).select("_id");
   if (!driver) {
     throw new AppError(StatusCodes.NOT_FOUND, "Driver not found");
   }
@@ -218,7 +247,10 @@ const updateRideStatus = async (
     throw new AppError(StatusCodes.NOT_FOUND, "Ride not found");
   }
 
-  if (!ride.driverId || ride.driverId.toString() !== driverId) {
+  console.log(ride.driverId);
+  console.log(driverId);
+
+  if (!ride.driverId?.toString() || ride.driverId.toString() !== driverId.toString()) {
     throw new AppError(
       StatusCodes.FORBIDDEN,
       "Driver is not assigned to this ride"
@@ -273,6 +305,7 @@ const deleteDriverAccount = async (userId: string) => {
 export const DriverServices = {
   createDriver,
   getAllDriver,
+  getDriverCurrentRide,
   getDriverById,
   updateDriverAvailability,
   updateDriverStatus,

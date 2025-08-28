@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
 
 export enum Role {
-  SuperAdmin = "Super_Admin",
-  Admin = "Admin",
-  Rider = "Rider",
-  Driver = "Driver",
+  SuperAdmin = "SUPER_ADMIN",
+  Admin = "ADMIN",
+  Rider = "RIDER",
+  Driver = "DRIVER",
 }
 
 export enum User_Status {
