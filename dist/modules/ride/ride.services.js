@@ -13,16 +13,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RideServices = void 0;
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const http_status_codes_1 = require("http-status-codes");
 const AppError_1 = __importDefault(require("../../ErrorHandler/AppError"));
 const ride_interface_1 = require("./ride.interface");
 const ride_model_1 = require("./ride.model");
 const user_model_1 = require("../user/user.model");
 const driver_model_1 = require("../driver/driver.model");
-const createRide = (payload, riderId) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.User.findById(riderId);
-    if (!user || user.role !== "Rider") {
+const user_interface_1 = require("../user/user.interface");
+const createRide = (payload, riderEmail) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findOne({ email: riderEmail });
+    const riderDoc = yield user_model_1.User.findOne({ email: riderEmail }).select("_id");
+    const riderId = riderDoc === null || riderDoc === void 0 ? void 0 : riderDoc._id;
+    if (!user || user.role !== user_interface_1.Role.Rider) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "User is not a valid rider");
     }
     const activeRide = yield ride_model_1.Ride.findOne({

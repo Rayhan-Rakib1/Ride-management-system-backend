@@ -4,10 +4,6 @@ exports.cancelRideZodSchema = exports.updateRideStatusZodSchema = exports.create
 const zod_1 = require("zod");
 const ride_interface_1 = require("./ride.interface");
 exports.createRideZodSchema = zod_1.z.object({
-    rider: zod_1.z.string({
-        required_error: "Rider ID is required",
-        invalid_type_error: "Rider ID must be a string",
-    }),
     pickup: zod_1.z.object({
         lat: zod_1.z
             .number({

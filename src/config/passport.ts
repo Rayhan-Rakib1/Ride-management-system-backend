@@ -6,6 +6,7 @@ import {
   VerifyCallback,
 } from "passport-google-oauth20";
 
+// passport
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
 import { User } from "../modules/user/user.model";

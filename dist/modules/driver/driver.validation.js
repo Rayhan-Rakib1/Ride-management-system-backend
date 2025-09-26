@@ -8,7 +8,7 @@ const baseDriverSchema = {
     name: zod_1.z.string({ required_error: "Name is required" }).min(1).trim(),
     email: zod_1.z.string({ required_error: "Email is required" }).email(),
     password: zod_1.z.string({ required_error: "Password is required" }).min(6),
-    role: zod_1.z.string({ required_error: "Role is required" }),
+    role: zod_1.z.string().optional(),
     phone: zod_1.z.string({ required_error: "Phone is required" }).min(5).trim(),
     address: zod_1.z.string({ required_error: "Address is required" }).min(3).trim(),
     profileImage: zod_1.z.string().url().optional(),

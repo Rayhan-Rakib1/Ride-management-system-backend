@@ -1,14 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../ErrorHandler/AppError";
 import { IRide, RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
 import { User } from "../user/user.model";
 import { Driver } from "../driver/driver.model";
+import { Role } from "../user/user.interface";
 
-const createRide = async (payload: Partial<IRide>, riderId: any) => {
-  const user = await User.findById(riderId);
-  if (!user || user.role !== "Rider") {
+const createRide = async (payload: Partial<IRide>, riderEmail: string) => {
+  const user = await User.findOne({email: riderEmail});
+  const riderDoc = await User.findOne({email: riderEmail}).select("_id");
+  const riderId = riderDoc?._id;
+
+  if (!user || user.role !== Role.Rider) {
     throw new AppError(StatusCodes.FORBIDDEN, "User is not a valid rider");
   }
 

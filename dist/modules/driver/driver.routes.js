@@ -12,6 +12,8 @@ const router = (0, express_1.Router)();
 router.post('/create-driver', (0, validation_request_1.validationRequest)(driver_validation_1.createDriverZodSchema), driver_controller_1.DriverController.createDriver);
 // Get all drivers (admin only)
 router.get('/all-drivers', (0, check_auth_1.checkAuth)(user_interface_1.Role.Admin, user_interface_1.Role.SuperAdmin), driver_controller_1.DriverController.getAllDrivers);
+// current driver ride
+router.get('/driver-current-ride', (0, check_auth_1.checkAuth)(user_interface_1.Role.Driver), driver_controller_1.DriverController.getDriverCurrentRide);
 // Get single driver profile (driver or admin)
 router.get('/:id', (0, check_auth_1.checkAuth)(user_interface_1.Role.Driver, user_interface_1.Role.Admin, user_interface_1.Role.SuperAdmin), driver_controller_1.DriverController.getDriverById);
 // Update driver approval status (admin only)

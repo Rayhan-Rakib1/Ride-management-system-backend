@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Driver = void 0;
 const mongoose_1 = require("mongoose");
 const driver_interface_1 = require("./driver.interface");
+const user_interface_1 = require("../user/user.interface");
 const driverSchema = new mongoose_1.Schema({
     name: { type: String, required: [true, "Name is required"], trim: true },
     email: {
@@ -14,7 +15,7 @@ const driverSchema = new mongoose_1.Schema({
     isVerified: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
     password: { type: String, required: [true, "Password is required"] },
-    role: { type: String, required: true },
+    role: { type: String, required: true, default: user_interface_1.Role.Driver },
     auth: [{ provider: { type: String }, providerId: { type: String } }],
     approvalStatus: {
         type: String,

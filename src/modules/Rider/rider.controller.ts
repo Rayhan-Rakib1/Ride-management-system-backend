@@ -47,8 +47,8 @@ const updateRiderProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getRiderHistory = catchAsync(async (req: Request, res: Response) => {
-    const {userId} = req.user as JwtPayload;
-  const result = await RiderServices.getRiderHistory(userId);
+    const rider = req.user as JwtPayload;
+  const result = await RiderServices.getRiderHistory(rider?.email);
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,

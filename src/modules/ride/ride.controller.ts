@@ -8,11 +8,8 @@ import AppError from "../../ErrorHandler/AppError";
 
 const createRide = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
-  if (!user || !user.userId) {
-    throw new AppError(StatusCodes.UNAUTHORIZED, "User not authenticated");
-  }
 
-  const result = await RideServices.createRide(req.body, user.userId);
+  const result = await RideServices.createRide(req.body, user.email);
 
   sendResponse(res, {
     message: "Ride requested successfully",

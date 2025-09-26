@@ -38,6 +38,18 @@ const getAllDrivers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
         data: result,
     });
 }));
+const getDriverCurrentRide = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const driverEmail = user.email;
+    console.log(driverEmail);
+    const result = yield driver_services_1.DriverServices.getDriverCurrentRide(driverEmail);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        message: "Driver current ride",
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        data: result,
+    });
+}));
 const getDriverById = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const user = req.user;
@@ -88,8 +100,9 @@ const updateDriverStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(
     });
 }));
 const getDriverRideHistory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { driverId } = req.user;
-    const result = yield driver_services_1.DriverServices.getDriverRideHistory(driverId);
+    const driver = req.user;
+    const email = driver.email;
+    const result = yield driver_services_1.DriverServices.getDriverRideHistory(email);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Driver ride history retrieved successfully",
         success: true,
@@ -110,7 +123,8 @@ const getDriverEarnings = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(v
 const acceptRide = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { rideId } = req.params;
     const user = req.user;
-    const result = yield driver_services_1.DriverServices.acceptRide(rideId, user.userId);
+    // console.log(user.userId);
+    const result = yield driver_services_1.DriverServices.acceptRide(rideId, user.email);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Ride accepted successfully",
         success: true,
@@ -122,7 +136,7 @@ const updateRideStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(vo
     const { rideId } = req.params;
     const { status } = req.body;
     const user = req.user;
-    const result = yield driver_services_1.DriverServices.updateRideStatus(rideId, user.userId, status);
+    const result = yield driver_services_1.DriverServices.updateRideStatus(rideId, user.email, status);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Ride status updated successfully",
         success: true,
@@ -135,9 +149,9 @@ const deleteDriverAccount = (0, catchAsync_1.catchAsync)((req, res) => __awaiter
     yield driver_services_1.DriverServices.deleteDriverAccount(userId);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
-        message: 'Driver deleted successfully',
+        message: "Driver deleted successfully",
         statusCode: http_status_codes_1.StatusCodes.OK,
-        data: null
+        data: null,
     });
 }));
 exports.DriverController = {
@@ -150,5 +164,6 @@ exports.DriverController = {
     getDriverEarnings,
     acceptRide,
     updateRideStatus,
-    deleteDriverAccount
+    deleteDriverAccount,
+    getDriverCurrentRide,
 };

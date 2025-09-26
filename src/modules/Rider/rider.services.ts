@@ -7,6 +7,7 @@ import { envVars } from "../../config/env";
 import { User } from "../user/user.model";
 import { Role } from "../user/user.interface";
 import { Ride } from "../ride/ride.model";
+import { RideStatus } from "../ride/ride.interface";
 
 const createRider = async (payload: Partial<IRider>) => {
   const { name, email, password, profileImage, address, phone, ...rest } =
@@ -82,16 +83,15 @@ const updateRiderProfile = async (userId: string, payload: Partial<IRider>) => {
 };
 
 // -------------------------------------------------------------
-const getRiderHistory = async (userId: string) => {
-  const rider = await Rider.findById(userId);
+const getRiderHistory = async (riderEmail: string) => {
+  const riderDoc = await Rider.findById({email: riderEmail}).select("_id");
+  const riderId = riderDoc?._id;
+  const rider = await Rider.findById({email: riderEmail}).select("_id");
   if (!rider) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Rider not exist");
   }
 
-  const history = await Ride.find({ riderId: userId })
-    .select(
-      "pickup destination status fare distance duration rating createdAt updatedAt"
-    )
+  const history = await Ride.find({ riderId: riderId, status: RideStatus.Completed  }).populate("driverId", "name email address phone gender")
     .sort({ createdAt: -1 });
 
   return history;

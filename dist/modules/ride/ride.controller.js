@@ -20,10 +20,7 @@ const ride_services_1 = require("./ride.services");
 const AppError_1 = __importDefault(require("../../ErrorHandler/AppError"));
 const createRide = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    if (!user || !user.userId) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.UNAUTHORIZED, "User not authenticated");
-    }
-    const result = yield ride_services_1.RideServices.createRide(req.body, user.userId);
+    const result = yield ride_services_1.RideServices.createRide(req.body, user.email);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Ride requested successfully",
         success: true,

@@ -67,8 +67,25 @@ const createDriver = (payload) => __awaiter(void 0, void 0, void 0, function* ()
     return { driver, user };
 });
 const getAllDriver = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield driver_model_1.Driver.find().populate("userId", "name email phone");
+    const result = yield driver_model_1.Driver.find();
     return result;
+});
+const getDriverCurrentRide = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const driver = yield driver_model_1.Driver.findOne({ email });
+    if (!driver) {
+        throw new AppError_1.default(401, "driver not found");
+    }
+    const driverDoc = yield driver_model_1.Driver.findOne({ email }).select("_id");
+    const driverId = driverDoc === null || driverDoc === void 0 ? void 0 : driverDoc._id;
+    // console.log(driverId);
+    // console.log(driver);
+    const currentRideDriver = yield ride_model_1.Ride.find({
+        driverId: driverId,
+        status: { $ne: ride_interface_1.RideStatus.Requested }
+    })
+        .populate("riderId", "name email phone gender")
+        .populate("driverId", "name email phone gender ");
+    return currentRideDriver;
 });
 const getDriverById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const driver = yield driver_model_1.Driver.findById(id).populate("userId", "name email phone");
@@ -98,12 +115,14 @@ const updateDriverStatus = (id, approvalStatus) => __awaiter(void 0, void 0, voi
     const result = yield driver_model_1.Driver.findOneAndUpdate({ userId: id }, { approvalStatus, updatedAt: new Date() }, { new: true, runValidators: true });
     return result;
 });
-const getDriverRideHistory = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const driver = yield driver_model_1.Driver.findOne({ _id: id });
+const getDriverRideHistory = (driverEmail) => __awaiter(void 0, void 0, void 0, function* () {
+    const driverDoc = yield driver_model_1.Driver.findOne({ email: driverEmail }).select("_id");
+    const id = driverDoc === null || driverDoc === void 0 ? void 0 : driverDoc._id;
+    const driver = yield driver_model_1.Driver.findOne({ email: driverEmail });
     if (!driver) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
     }
-    const rides = yield ride_model_1.Ride.find({ driverId: id }).populate("riderId", "name email");
+    const rides = yield ride_model_1.Ride.find({ driverId: id }).populate("riderId", "name email address phone gender fare rating");
     return rides;
 });
 const getDriverEarnings = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -118,14 +137,18 @@ const getDriverEarnings = (id) => __awaiter(void 0, void 0, void 0, function* ()
         rides,
     };
 });
-const acceptRide = (rideId, driverId) => __awaiter(void 0, void 0, void 0, function* () {
-    const driver = yield driver_model_1.Driver.findOne({ userId: driverId });
+const acceptRide = (rideId, email) => __awaiter(void 0, void 0, void 0, function* () {
+    const driverDoc = yield driver_model_1.Driver.findOne({ email }).select("_id");
+    if (!driverDoc)
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
+    const driverId = driverDoc._id;
+    const driver = yield driver_model_1.Driver.findOne({ email });
     if (!driver) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
     }
-    if (driver.approvalStatus !== "approved") {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Driver is not approved");
-    }
+    // if (driver.approvalStatus !== DriverApprovalStatus.Approved) {
+    //   throw new AppError(StatusCodes.FORBIDDEN, "Driver is not approved");
+    // }
     if (!driver.availability) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Driver is not available");
     }
@@ -147,8 +170,13 @@ const acceptRide = (rideId, driverId) => __awaiter(void 0, void 0, void 0, funct
     yield driver_model_1.Driver.findOneAndUpdate({ userId: driverId }, { isAvailable: false });
     return result;
 });
-const updateRideStatus = (rideId, driverId, status) => __awaiter(void 0, void 0, void 0, function* () {
-    const driver = yield driver_model_1.Driver.findOne({ userId: driverId });
+const updateRideStatus = (rideId, email, status) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const driverDoc = yield driver_model_1.Driver.findOne({ email }).select("_id");
+    if (!driverDoc)
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
+    const driverId = driverDoc._id;
+    const driver = yield driver_model_1.Driver.findOne({ email }).select("_id");
     if (!driver) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Driver not found");
     }
@@ -156,7 +184,9 @@ const updateRideStatus = (rideId, driverId, status) => __awaiter(void 0, void 0,
     if (!ride) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Ride not found");
     }
-    if (!ride.driverId || ride.driverId.toString() !== driverId) {
+    console.log(ride.driverId);
+    console.log(driverId);
+    if (!((_a = ride.driverId) === null || _a === void 0 ? void 0 : _a.toString()) || ride.driverId.toString() !== driverId.toString()) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Driver is not assigned to this ride");
     }
     const validStatusTransitions = {
@@ -195,6 +225,7 @@ const deleteDriverAccount = (userId) => __awaiter(void 0, void 0, void 0, functi
 exports.DriverServices = {
     createDriver,
     getAllDriver,
+    getDriverCurrentRide,
     getDriverById,
     updateDriverAvailability,
     updateDriverStatus,
