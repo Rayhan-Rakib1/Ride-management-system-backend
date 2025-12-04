@@ -45,6 +45,11 @@ const rideSchema = new mongoose_1.Schema({
             required: [true, "Destination address is required"],
         },
     },
+    vehicle: {
+        type: String,
+        enum: Object.values(ride_interface_1.VehicleType),
+        required: true,
+    },
     status: {
         type: String,
         enum: {

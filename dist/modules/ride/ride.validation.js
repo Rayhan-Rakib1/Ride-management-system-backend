@@ -52,6 +52,23 @@ exports.createRideZodSchema = zod_1.z.object({
         })
             .min(1, "Destination address cannot be empty"),
     }),
+    vehicle: zod_1.z.enum(["bike", "car", "cng"], {
+        required_error: "Vehicle type is required",
+        invalid_type_error: "Vehicle type must be bike, car or cng",
+    }),
+    status: zod_1.z.enum([
+        "requested",
+        "accepted",
+        "picked_up",
+        "in_transit",
+        "completed",
+        "cancelled",
+        "Payment_failed",
+        "Payment_cancel",
+    ], {
+        required_error: "Status is required",
+        invalid_type_error: "Invalid ride status",
+    }),
     fare: zod_1.z.number({
         required_error: "Fare is required",
         invalid_type_error: "Fare must be a number",

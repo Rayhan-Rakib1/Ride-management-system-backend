@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IRide, RideStatus } from "./ride.interface";
+import { IRide, RideStatus, VehicleType } from "./ride.interface";
 
 const rideSchema = new Schema<IRide>(
   {
@@ -43,6 +43,11 @@ const rideSchema = new Schema<IRide>(
         type: String,
         required: [true, "Destination address is required"],
       },
+    },
+    vehicle: {
+      type: String,
+      enum: Object.values(VehicleType),
+      required: true,
     },
     status: {
       type: String,

@@ -34,19 +34,18 @@ const getAllUsers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
-// const updateUser = catchAsync(
-//   async (req: Request, res: Response) => {
-//     const userId = req.params.id;
-//     const payload = req.body;
-//     const result = await UserServices.updateUser(userId, payload);
-//     sendResponse(res, {
-//       message: "Updated user",
-//       success: true,
-//       statusCode: StatusCodes.OK,
-//       data: result,
-//     });
-//   }
-// );
+const updateUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.id;
+    const payload = req.body;
+    console.log(payload);
+    const result = yield user_services_1.UserServices.updateUser(userId, payload);
+    (0, sendResponse_1.sendResponse)(res, {
+        message: "Updated user",
+        success: true,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        data: result,
+    });
+}));
 exports.UserStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
     const { status } = req.body;
@@ -71,7 +70,7 @@ const getMe = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 
 exports.UserController = {
     // createUser,
     getAllUsers,
-    // updateUser,
+    updateUser,
     UserStatus: exports.UserStatus,
     getMe,
 };

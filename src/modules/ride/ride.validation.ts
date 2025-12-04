@@ -1,10 +1,7 @@
 import { z } from "zod";
 import { RideStatus } from "./ride.interface";
 
-
-
 export const createRideZodSchema = z.object({
-
   pickup: z.object({
     lat: z
       .number({
@@ -55,6 +52,28 @@ export const createRideZodSchema = z.object({
       .min(1, "Destination address cannot be empty"),
   }),
 
+  vehicle: z.enum(["bike", "car", "cng"], {
+    required_error: "Vehicle type is required",
+    invalid_type_error: "Vehicle type must be bike, car or cng",
+  }),
+
+  status: z.enum(
+    [
+      "requested",
+      "accepted",
+      "picked_up",
+      "in_transit",
+      "completed",
+      "cancelled",
+      "Payment_failed",
+      "Payment_cancel",
+    ],
+    {
+      required_error: "Status is required",
+      invalid_type_error: "Invalid ride status",
+    }
+  ),
+
   fare: z.number({
     required_error: "Fare is required",
     invalid_type_error: "Fare must be a number",
@@ -71,16 +90,14 @@ export const createRideZodSchema = z.object({
   }),
 });
 
-
 // Schema for updating ride status (used in PATCH /rides/:id/status)
 export const updateRideStatusZodSchema = z.object({
-
-    status: z.enum(Object.values(RideStatus) as [string, ...string[]], {
-      required_error: "Status is required",
-      invalid_type_error: "Status must be one of: requested, accepted, picked_up, in_transit, completed, cancelled",
-    }),
-  })
-
+  status: z.enum(Object.values(RideStatus) as [string, ...string[]], {
+    required_error: "Status is required",
+    invalid_type_error:
+      "Status must be one of: requested, accepted, picked_up, in_transit, completed, cancelled",
+  }),
+});
 
 // Schema for cancelling a ride (used in PATCH /rides/:id/cancel)
 export const cancelRideZodSchema = z.object({

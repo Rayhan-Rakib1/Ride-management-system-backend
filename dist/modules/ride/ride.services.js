@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RideServices = void 0;
+exports.RideServices = exports.payment = exports.getActiveRide = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const AppError_1 = __importDefault(require("../../ErrorHandler/AppError"));
 const ride_interface_1 = require("./ride.interface");
@@ -20,9 +20,11 @@ const ride_model_1 = require("./ride.model");
 const user_model_1 = require("../user/user.model");
 const driver_model_1 = require("../driver/driver.model");
 const user_interface_1 = require("../user/user.interface");
+const payment_services_1 = require("../payment/payment.services");
+const rider_model_1 = require("../Rider/rider.model");
 const createRide = (payload, riderEmail) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.User.findOne({ email: riderEmail });
-    const riderDoc = yield user_model_1.User.findOne({ email: riderEmail }).select("_id");
+    const riderDoc = yield rider_model_1.Rider.findOne({ email: riderEmail }).select("_id");
     const riderId = riderDoc === null || riderDoc === void 0 ? void 0 : riderDoc._id;
     if (!user || user.role !== user_interface_1.Role.Rider) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "User is not a valid rider");
@@ -36,6 +38,7 @@ const createRide = (payload, riderEmail) => __awaiter(void 0, void 0, void 0, fu
     }
     const rideData = {
         riderId,
+        vehicle: payload.vehicle,
         pickup: payload.pickup,
         destination: payload.destination,
         status: ride_interface_1.RideStatus.Requested,
@@ -89,7 +92,8 @@ const updateRideStatus = (rideId, driverId, status) => __awaiter(void 0, void 0,
         [ride_interface_1.RideStatus.Completed]: [],
         [ride_interface_1.RideStatus.Cancelled]: [],
         [ride_interface_1.RideStatus.PaymentFailed]: [],
-        [ride_interface_1.RideStatus.PaymentCancel]: []
+        [ride_interface_1.RideStatus.PaymentCancel]: [],
+        [ride_interface_1.RideStatus.PaymentSuccessful]: []
     };
     if (!validStatusTransitions[ride.status].includes(status)) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, `Invalid status transition from ${ride.status} to ${status}`);
@@ -105,26 +109,62 @@ const updateRideStatus = (rideId, driverId, status) => __awaiter(void 0, void 0,
     const result = yield ride_model_1.Ride.findByIdAndUpdate(rideId, updates, { new: true, runValidators: true }).populate("riderId driverId", "name email");
     return result;
 });
-const getRideById = (rideId, userId, role) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const ride = yield ride_model_1.Ride.findById(rideId).populate("riderId driverId", "name email");
+const getActiveRide = (userId, email) => __awaiter(void 0, void 0, void 0, function* () {
+    const rider = yield rider_model_1.Rider.findOne({ email: email });
+    const riderId = rider === null || rider === void 0 ? void 0 : rider._id;
+    // Find active ride for this user (rider)
+    const ride = yield ride_model_1.Ride.findOne({
+        riderId: riderId,
+        status: { $ne: ride_interface_1.RideStatus.PaymentSuccessful }, // exclude payment success
+    })
+        .populate("riderId driverId", "name email phone");
     if (!ride) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Ride not found");
-    }
-    if (role === "rider" && ride.riderId.toString() !== userId ||
-        role === "driver" && ((_a = ride.driverId) === null || _a === void 0 ? void 0 : _a.toString()) !== userId) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, "Access denied to this ride");
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "No active ride found");
     }
     return ride;
 });
+exports.getActiveRide = getActiveRide;
 const getAllRides = () => __awaiter(void 0, void 0, void 0, function* () {
     const rides = yield ride_model_1.Ride.find().populate("riderId driverId", "name email").sort({ createdAt: -1 });
     return rides;
 });
+const payment = (riderId) => __awaiter(void 0, void 0, void 0, function* () {
+    const ride = yield ride_model_1.Ride.findOne({
+        riderId,
+        status: {
+            $in: [
+                ride_interface_1.RideStatus.Requested,
+                ride_interface_1.RideStatus.Accepted,
+                ride_interface_1.RideStatus.PickedUp,
+                ride_interface_1.RideStatus.InTransit,
+                ride_interface_1.RideStatus.Completed // Completed add করলে payment দেখানো যাবে
+            ]
+        },
+    })
+        .populate("driverId", "name email phone")
+        .populate("riderId", "name email phone");
+    if (!ride)
+        return null;
+    let paymentUrl = null;
+    if (ride.status === ride_interface_1.RideStatus.Completed) {
+        try {
+            const paymentResult = yield payment_services_1.PaymentServices.initPayment(ride._id.toString());
+            paymentUrl = paymentResult.paymentUrl;
+            if (paymentUrl) {
+                yield ride_model_1.Ride.updateOne(ride.riderId, { status: ride_interface_1.RideStatus.PaymentSuccessful });
+            }
+        }
+        catch (err) {
+            console.error("Payment init error:", err);
+        }
+    }
+    return Object.assign(Object.assign({}, ride.toObject()), { paymentUrl });
+});
+exports.payment = payment;
 exports.RideServices = {
     createRide,
     cancelRide,
     updateRideStatus,
-    getRideById,
-    getAllRides,
+    getActiveRide: exports.getActiveRide,
+    getAllRides, payment: exports.payment
 };

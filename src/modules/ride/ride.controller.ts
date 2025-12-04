@@ -56,15 +56,14 @@ const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getRideById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+const getActiveRide = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as JwtPayload;
 
   if (!user || !user.userId) {
     throw new AppError(StatusCodes.UNAUTHORIZED, "User not authenticated");
   }
 
-  const result = await RideServices.getRideById(id, user.userId, user.role);
+  const result = await RideServices.getActiveRide(user.userId, user.email);
 
   sendResponse(res, {
     message: "Ride retrieved successfully",
@@ -86,11 +85,21 @@ const getAllRides = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+export const getActiveRideForRider = async (req: Request, res: Response) => {
+  const riderId = req.user as JwtPayload;
+  const ride = await RideServices.payment(riderId.userId);
 
+  sendResponse(res, {
+    message: ride ? "Active ride found" : "No active ride",
+    success: true,
+    statusCode: StatusCodes.OK,
+    data: ride,
+  });
+};
 export const RideController = {
   createRide,
   cancelRide,
   updateRideStatus,
-  getRideById,
-  getAllRides,
+  getActiveRide,
+  getAllRides,getActiveRideForRider
 };

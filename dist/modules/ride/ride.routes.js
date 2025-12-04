@@ -17,5 +17,12 @@ router.patch("/cancel/:id", (0, check_auth_1.checkAuth)(user_interface_1.Role.Ri
 // Update ride status (driver only)
 router.patch("/status/:id", (0, check_auth_1.checkAuth)(user_interface_1.Role.Driver), (0, validation_request_1.validationRequest)(ride_validation_1.updateRideStatusZodSchema), ride_controller_1.RideController.updateRideStatus);
 // Get ride by ID (rider, driver, or admin)
-router.get("/:id", (0, check_auth_1.checkAuth)(user_interface_1.Role.Rider, user_interface_1.Role.Driver, user_interface_1.Role.Admin, user_interface_1.Role.SuperAdmin), ride_controller_1.RideController.getRideById);
+router.get("/", (0, check_auth_1.checkAuth)(user_interface_1.Role.Rider, user_interface_1.Role.Driver, user_interface_1.Role.Admin, user_interface_1.Role.SuperAdmin), ride_controller_1.RideController.getActiveRide);
+// Get active ride for rider
+router.get("/active", (0, check_auth_1.checkAuth)(user_interface_1.Role.Rider), ride_controller_1.RideController.getActiveRideForRider);
+// router.get(
+//   "/completed",
+//   checkAuth(Role.Rider), 
+//   RiderController.getCompletedRides
+// );
 exports.ridesRoutes = router;

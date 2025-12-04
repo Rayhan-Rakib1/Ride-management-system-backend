@@ -27,19 +27,20 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// const updateUser = catchAsync(
-//   async (req: Request, res: Response) => {
-//     const userId = req.params.id;
-//     const payload = req.body;
-//     const result = await UserServices.updateUser(userId, payload);
-//     sendResponse(res, {
-//       message: "Updated user",
-//       success: true,
-//       statusCode: StatusCodes.OK,
-//       data: result,
-//     });
-//   }
-// );
+const updateUser = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const payload= req.body;
+    console.log(payload);
+    const result = await UserServices.updateUser(userId, payload);
+    sendResponse(res, {
+      message: "Updated user",
+      success: true,
+      statusCode: StatusCodes.OK,
+      data: result,
+    });
+  }
+);
 
 export const UserStatus = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.id;
@@ -67,7 +68,7 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
 export const UserController = {
   // createUser,
   getAllUsers,
-  // updateUser,
+  updateUser,
   UserStatus,
   getMe,
 };

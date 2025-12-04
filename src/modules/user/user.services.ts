@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../ErrorHandler/AppError";
-import { Role } from "./user.interface";
+import { IUser, Role } from "./user.interface";
 import { User } from "./user.model";
+// import { envVars } from "../../config/env";
 // import bcrypt from "bcryptjs";
 // import { envVars } from "../../config/env";
 
@@ -38,25 +39,19 @@ const getAllUsers = async () => {
   return result;
 };
 
-// const updateUser = async (userId: string, payload: Partial<IUser>) => {
-//   const isUserExist = await User.findById(userId);
-//   if (!isUserExist) {
-//     throw new AppError(StatusCodes.BAD_REQUEST, "User does not exists");
-//   }
+const updateUser = async (userId: string, payload: Partial<IUser>) => {
+  const isUserExist = await User.findById(userId);
+  if (!isUserExist) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "User does not exists");
+  }
 
-//   if (payload.password) {
-//     payload.password = await bcrypt.hash(
-//       payload.password,
-//       Number(envVars.BCRYPT_SALT_ROUND)
-//     );
-//   }
-
-//   const updatedUser = await User.findByIdAndUpdate(userId, payload, {
-//     runValidators: true,
-//     new: true,
-//   });
-//   return updatedUser;
-// };
+ 
+  const updatedUser = await User.findByIdAndUpdate(userId, payload, {
+    runValidators: true,
+    new: true,
+  });
+  return updatedUser;
+};
 
 export const updateUserStatus = async (
   userId: string,
@@ -107,7 +102,7 @@ const getMe = async (userId: string) => {
 export const UserServices = {
   // createUser,
   getAllUsers,
-  // updateUser,
+  updateUser,
   updateUserStatus,
   getMe,
 };

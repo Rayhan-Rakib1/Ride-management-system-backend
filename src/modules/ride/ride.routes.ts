@@ -38,13 +38,19 @@ router.patch(
 
 // Get ride by ID (rider, driver, or admin)
 router.get(
-  "/:id",
+  "/",
   checkAuth(Role.Rider, Role.Driver, Role.Admin, Role.SuperAdmin),
-  RideController.getRideById
+  RideController.getActiveRide
 );
 
 
-
+// Get active ride for rider
+router.get("/active", checkAuth(Role.Rider), RideController.getActiveRideForRider);
+// router.get(
+//   "/completed",
+//   checkAuth(Role.Rider), 
+//   RiderController.getCompletedRides
+// );
 
 
 export const ridesRoutes = router;

@@ -14,13 +14,12 @@ router.post('/login', auth_controller_1.authController.credentialLogin);
 router.post('/refresh-token', auth_controller_1.authController.getNewAccessToken);
 router.post('/logout', auth_controller_1.authController.userLogout);
 router.patch('/reset-password', (0, check_auth_1.checkAuth)(...Object.values(user_interface_1.Role)), auth_controller_1.authController.resetPassword);
-router.get('/google', (req, res, next) => {
-    var _a;
-    const redirect = ((_a = req === null || req === void 0 ? void 0 : req.query) === null || _a === void 0 ? void 0 : _a.redirect) || '';
-    passport_1.default.authenticate('google', {
-        scope: ["profile", "email"],
-        state: redirect,
-    })(req, res, next);
-});
+// router.get('/google', (req, res, next) => {
+//   const redirect = req?.query?.redirect || '';
+//   passport.authenticate('google', {
+//     scope: ["profile", "email"],
+//     state: redirect as string,
+//   })(req, res, next);
+// });
 router.get('/google/callback', passport_1.default.authenticate('google', { failureRedirect: "/login" }), auth_controller_1.authController.googleCallback);
 exports.authRoutes = router;

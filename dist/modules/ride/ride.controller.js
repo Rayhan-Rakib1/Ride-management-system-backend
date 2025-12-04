@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RideController = void 0;
+exports.RideController = exports.getActiveRideForRider = void 0;
 const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
 const http_status_codes_1 = require("http-status-codes");
@@ -57,13 +57,12 @@ const updateRideStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(vo
         data: result,
     });
 }));
-const getRideById = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
+const getActiveRide = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     if (!user || !user.userId) {
         throw new AppError_1.default(http_status_codes_1.StatusCodes.UNAUTHORIZED, "User not authenticated");
     }
-    const result = yield ride_services_1.RideServices.getRideById(id, user.userId, user.role);
+    const result = yield ride_services_1.RideServices.getActiveRide(user.userId, user.email);
     (0, sendResponse_1.sendResponse)(res, {
         message: "Ride retrieved successfully",
         success: true,
@@ -80,10 +79,21 @@ const getAllRides = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+const getActiveRideForRider = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const riderId = req.user;
+    const ride = yield ride_services_1.RideServices.payment(riderId.userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        message: ride ? "Active ride found" : "No active ride",
+        success: true,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        data: ride,
+    });
+});
+exports.getActiveRideForRider = getActiveRideForRider;
 exports.RideController = {
     createRide,
     cancelRide,
     updateRideStatus,
-    getRideById,
-    getAllRides,
+    getActiveRide,
+    getAllRides, getActiveRideForRider: exports.getActiveRideForRider
 };

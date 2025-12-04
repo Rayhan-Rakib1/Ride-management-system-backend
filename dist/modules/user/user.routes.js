@@ -6,11 +6,15 @@ const user_controller_1 = require("./user.controller");
 const user_interface_1 = require("./user.interface");
 const check_auth_1 = require("../../middlewares/check.auth");
 // import { validationRequest } from "../../middlewares/validation.request";
+// import { updateUserZodSchema } from "./user.validation";
+// import { validationRequest } from "../../middlewares/validation.request";
 // import { createUserZodSchema, updateUserZodSchema } from "./user.validation";
 const router = (0, express_1.Router)();
 // router.post("/register", UserController.createUser, validationRequest(createUserZodSchema));
 router.get("/all-users", user_controller_1.UserController.getAllUsers, (0, check_auth_1.checkAuth)(user_interface_1.Role.Admin, user_interface_1.Role.SuperAdmin));
 router.get("/me", (0, check_auth_1.checkAuth)(...Object.values(user_interface_1.Role)), user_controller_1.UserController.getMe);
-// router.patch("/:id", UserController.updateUser, checkAuth(...Object.values(Role)), validationRequest(updateUserZodSchema));
+router.patch("/:id", (0, check_auth_1.checkAuth)(...Object.values(user_interface_1.Role)), 
+//   validationRequest(updateUserZodSchema),
+user_controller_1.UserController.updateUser);
 router.patch('/user-status/:id', (0, check_auth_1.checkAuth)(user_interface_1.Role.Admin, user_interface_1.Role.SuperAdmin), user_controller_1.UserController.UserStatus);
 exports.usersRoutes = router;

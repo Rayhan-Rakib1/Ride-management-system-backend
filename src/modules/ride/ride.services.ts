@@ -5,10 +5,12 @@ import { Ride } from "./ride.model";
 import { User } from "../user/user.model";
 import { Driver } from "../driver/driver.model";
 import { Role } from "../user/user.interface";
+import { PaymentServices } from "../payment/payment.services";
+import { Rider } from "../Rider/rider.model";
 
 const createRide = async (payload: Partial<IRide>, riderEmail: string) => {
   const user = await User.findOne({email: riderEmail});
-  const riderDoc = await User.findOne({email: riderEmail}).select("_id");
+  const riderDoc = await Rider.findOne({email: riderEmail}).select("_id");
   const riderId = riderDoc?._id;
 
   if (!user || user.role !== Role.Rider) {
@@ -25,6 +27,7 @@ const createRide = async (payload: Partial<IRide>, riderEmail: string) => {
 
   const rideData: Partial<IRide> = {
     riderId,
+    vehicle: payload.vehicle,
     pickup: payload.pickup,
     destination: payload.destination,
     status: RideStatus.Requested,
@@ -92,7 +95,8 @@ const updateRideStatus = async (rideId: string, driverId: string, status: RideSt
     [RideStatus.Completed]: [],
     [RideStatus.Cancelled]: [],
     [RideStatus.PaymentFailed]: [],
-    [RideStatus.PaymentCancel]: []
+    [RideStatus.PaymentCancel]: [],
+    [RideStatus.PaymentSuccessful]: []
   };
 
   if (!validStatusTransitions[ride.status].includes(status)) {
@@ -121,21 +125,27 @@ const updateRideStatus = async (rideId: string, driverId: string, status: RideSt
   return result;
 };
 
-const getRideById = async (rideId: string, userId: string, role: string) => {
-  const ride = await Ride.findById(rideId).populate("riderId driverId", "name email");
-  if (!ride) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Ride not found");
-  }
 
-  if (
-    role === "rider" && ride.riderId.toString() !== userId ||
-    role === "driver" && ride.driverId?.toString() !== userId
-  ) {
-    throw new AppError(StatusCodes.FORBIDDEN, "Access denied to this ride");
+
+export const getActiveRide = async (userId: string, email: string) => {
+
+  const rider = await Rider.findOne({email: email})
+  const riderId = rider?._id;
+  // Find active ride for this user (rider)
+  const ride = await Ride.findOne({
+    riderId: riderId,
+    status: { $ne: RideStatus.PaymentSuccessful }, // exclude payment success
+  })
+    .populate("riderId driverId", "name email phone");
+
+  if (!ride) {
+    throw new AppError(StatusCodes.NOT_FOUND, "No active ride found");
   }
 
   return ride;
 };
+
+
 
 
 
@@ -144,10 +154,47 @@ const getAllRides = async () => {
   return rides;
 };
 
+
+export const payment  = async (riderId: string) => {
+  const ride = await Ride.findOne({
+    riderId,
+    status: { 
+      $in: [
+        RideStatus.Requested, 
+        RideStatus.Accepted, 
+        RideStatus.PickedUp, 
+        RideStatus.InTransit,
+        RideStatus.Completed // Completed add করলে payment দেখানো যাবে
+      ]
+    },
+  })
+    .populate("driverId", "name email phone")
+    .populate("riderId", "name email phone");
+
+  if (!ride) return null;
+
+  let paymentUrl: string | null = null;
+
+  if (ride.status === RideStatus.Completed) {
+    try {
+      const paymentResult = await PaymentServices.initPayment(ride._id.toString());
+      paymentUrl = paymentResult.paymentUrl;
+      if(paymentUrl){
+        await Ride.updateOne(ride.riderId, {status: RideStatus.PaymentSuccessful})
+      }
+    } catch (err) {
+      console.error("Payment init error:", err);
+    }
+  }
+
+  return { ...ride.toObject(), paymentUrl };
+};
+
+
 export const RideServices = {
   createRide,
   cancelRide,
   updateRideStatus,
-  getRideById,
-  getAllRides,
+  getActiveRide,
+  getAllRides,payment
 };
